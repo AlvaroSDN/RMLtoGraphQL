@@ -1,0 +1,2 @@
+{"_id":{"$oid":"5cd1c16774e87b0a68da6548"},"nombre":"Alvaro","edad":{"$numberInt":"23"}}
+{"_id":{"$oid":"5cd1c17874e87b0a68da6549"},"nombre":"Alberto","edad":{"$numberInt":"22"}}
