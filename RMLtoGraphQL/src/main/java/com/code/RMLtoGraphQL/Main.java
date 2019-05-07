@@ -17,7 +17,7 @@ public class Main {
 	public static void main(String[] args) {
 
         String cwd = "C:\\Users\\Alvaro\\git\\RMLtoGraphQL\\RMLtoGraphQL\\Ejemplos\\test-cases\\RMLTC0001a-JSON\\Prueba;"; //path to default directory for local files
-        String mappingFile = "C:\\Users\\Alvaro\\git\\RMLtoGraphQL\\RMLtoGraphQL\\Ejemplos\\test-cases\\RMLTC0001a-JSON\\Prueba\\mapping.ttl;"; //path to the mapping file that needs to be executed
+        String mappingFile = "C:\\Users\\Alvaro\\git\\RMLtoGraphQL\\RMLtoGraphQL\\Ejemplos\\test-cases\\RMLTC0001a-JSON\\Prueba\\mapping.ttl"; //path to the mapping file that needs to be executed
         
         try {
             InputStream mappingStream = new FileInputStream(mappingFile);
