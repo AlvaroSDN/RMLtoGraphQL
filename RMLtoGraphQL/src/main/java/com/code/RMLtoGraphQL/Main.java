@@ -1,4 +1,5 @@
 package com.code.RMLtoGraphQL;
+
 import org.eclipse.rdf4j.model.Model;
 import org.eclipse.rdf4j.rio.RDFFormat;
 import org.eclipse.rdf4j.rio.Rio;
