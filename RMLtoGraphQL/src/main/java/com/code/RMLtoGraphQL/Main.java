@@ -1,33 +1,50 @@
 package com.code.RMLtoGraphQL;
 
-import org.eclipse.rdf4j.model.Model;
-import org.eclipse.rdf4j.rio.RDFFormat;
-import org.eclipse.rdf4j.rio.Rio;
-
-import be.ugent.rml.DataFetcher;
-import be.ugent.rml.Executor;
-import be.ugent.rml.records.RecordsFactory;
-import be.ugent.rml.store.RDF4JStore;
-import be.ugent.rml.store.QuadStore;
-
+import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Scanner;
+
+import javax.swing.JFileChooser;
+import javax.swing.JOptionPane;
 
 public class Main {
+	private static List<Resource> resources = new ArrayList<Resource>();
+	private static RMLReader reader = new RMLReader();
+	private static final File exampleDirectory = new File("C:\\Users\\Alvaro\\git\\RMLtoGraphQL\\RMLtoGraphQL\\Ejemplos");
+
 	public static void main(String[] args) {
+		//  String route = scanner.next();
+		// File file = new File(route);
+		//  resources = reader.read(file);
+		// muestra el cuadro de diálogo de archivos, para que el usuario pueda elegir el archivo a abrir
+		boolean ficheroValido = false;
+		File mapping = null;
+		JFileChooser selectorArchivos = new JFileChooser();
+		selectorArchivos.setCurrentDirectory(exampleDirectory);
+		selectorArchivos.setFileSelectionMode(JFileChooser.FILES_ONLY);
 
-        String cwd = "C:\\Users\\Alvaro\\git\\RMLtoGraphQL\\RMLtoGraphQL\\Ejemplos\\test-cases\\RMLTC0001a-JSON\\Prueba;"; //path to default directory for local files
-        String mappingFile = "C:\\Users\\Alvaro\\git\\RMLtoGraphQL\\RMLtoGraphQL\\Ejemplos\\test-cases\\RMLTC0001a-JSON\\Prueba\\mapping.ttl"; //path to the mapping file that needs to be executed
-        
-        try {
-            InputStream mappingStream = new FileInputStream(mappingFile);
-            Model model = Rio.parse(mappingStream, "", RDFFormat.TURTLE);
-            RDF4JStore rmlStore = new RDF4JStore(model);
+		// indica cual fue la accion de usuario sobre el jfilechooser
+		while(ficheroValido == false) {
+			int result = selectorArchivos.showOpenDialog(selectorArchivos);
+			mapping = selectorArchivos.getSelectedFile(); // obtiene el archivo seleccionado
 
-            Executor executor = new Executor(rmlStore, new RecordsFactory(new DataFetcher(cwd, rmlStore)), mappingFile);
-            QuadStore result = executor.execute(null);
-        } catch (Exception e) {
-            System.out.println(e.getMessage());
-        }
-    } 
+			// muestra error si es inválido
+			if ((mapping == null) || (mapping.getName().equals(""))) {
+				JOptionPane.showMessageDialog(selectorArchivos, "Se ha seleccionado un archivo no valido, o ha pulsado en Cancelar.", "Error", JOptionPane.ERROR_MESSAGE);
+				if(JOptionPane.showConfirmDialog(null, "¿Desea buscar otro archivo?", "RMLtoGraphQL", JOptionPane.YES_NO_OPTION) == 1) {
+					return;
+				}
+			}
+			else 
+				ficheroValido = true;
+		}
+		resources = reader.read(mapping);
+	}
 }
