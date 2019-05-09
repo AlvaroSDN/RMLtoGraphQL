@@ -17,7 +17,7 @@ import javax.swing.JOptionPane;
 public class Main {
 	private static List<Resource> resources = new ArrayList<Resource>();
 	private static RMLReader reader = new RMLReader();
-	private static final File exampleDirectory = new File("C:\\Users\\Alvaro\\git\\RMLtoGraphQL\\RMLtoGraphQL\\Ejemplos");
+	private static final File exampleDirectory = getExampleDirectory(); // "C:\\Users\\Alvaro\\git\\RMLtoGraphQL\\RMLtoGraphQL\\Ejemplos"
 
 	public static void main(String[] args) {
 		//  String route = scanner.next();
@@ -27,7 +27,7 @@ public class Main {
 		boolean ficheroValido = false;
 		File mapping = null;
 		JFileChooser selectorArchivos = new JFileChooser();
-		selectorArchivos.setCurrentDirectory(exampleDirectory);
+		selectorArchivos.setCurrentDirectory(exampleDirectory); 
 		selectorArchivos.setFileSelectionMode(JFileChooser.FILES_ONLY);
 
 		// indica cual fue la accion de usuario sobre el jfilechooser
@@ -46,5 +46,12 @@ public class Main {
 				ficheroValido = true;
 		}
 		resources = reader.read(mapping);
+	}
+	
+	private static File getExampleDirectory() {
+		String path = new File("").getAbsolutePath();
+		int index = path.lastIndexOf("\\");
+		path = path.substring(0, index) + "\\Ejemplos";
+		return new File(path);
 	}
 }

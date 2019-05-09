@@ -53,6 +53,7 @@ public class RMLReader {
 					}
 					resource = new Resource(nameClassString, new Predicate(predicateString, new ObjectMap(referenceString, datatypeString)));
 					System.out.println(resource);
+					resources.add(resource);
 				}
 			}
 		} catch (IOException e) {
