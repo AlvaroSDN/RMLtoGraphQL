@@ -3,6 +3,11 @@ package com.code.RMLtoGraphQL;
 public class ObjectMap {
 	private String reference;
 	private String datatype;
+	
+	public ObjectMap() {
+		super();
+	}
+	
 	public ObjectMap(String reference, String datatype) {
 		this.reference = reference;
 		this.datatype = datatype;
@@ -22,7 +27,7 @@ public class ObjectMap {
 	
 	@Override
 	public String toString() {
-		return "ObjectMap [reference=" + reference + ", datatype=" + datatype + "]";
+		return "ObjectMap\n[reference=" + reference + ", \ndatatype=" + datatype + "]";
 	}
 	
 	

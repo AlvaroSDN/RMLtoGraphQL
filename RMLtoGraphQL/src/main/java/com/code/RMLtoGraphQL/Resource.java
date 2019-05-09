@@ -1,12 +1,14 @@
 package com.code.RMLtoGraphQL;
 
+import java.util.List;
+
 public class Resource  {
 	private String nameClass;
-	private Predicate predicate;
+	private List<Predicate> predicates;
 	
-	public Resource(String nameClass, Predicate predicate) {
+	public Resource(String nameClass, List<Predicate> predicates) {
 		this.nameClass = nameClass;
-		this.predicate = predicate;
+		this.predicates = predicates;
 	}
 	
 	public String getNameClass() {
@@ -15,16 +17,20 @@ public class Resource  {
 	public void setNameClass(String nameClass) {
 		this.nameClass = nameClass;
 	}
-	public Predicate getPredicate() {
-		return predicate;
+	public List<Predicate> getPredicate() {
+		return predicates;
 	}
-	public void setPredicate(Predicate predicate) {
-		this.predicate = predicate;
+	public void setPredicate(List<Predicate> predicates) {
+		this.predicates = predicates;
 	}
 
 	@Override
 	public String toString() {
-		return "Resource [nameClass=" + nameClass + ", predicate=" + predicate + "]";
+		String result = "Resource \nnameClass = " + nameClass + "\n";
+		for(int i = 0; i < predicates.size(); i++) {
+			result += "predicate " + i + " = " + predicates.get(i) + "\n";
+		}
+		return result;
 	}
 	
 }

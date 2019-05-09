@@ -22,7 +22,7 @@ public class Predicate  {
 	
 	@Override
 	public String toString() {
-		return "Predicate [predicate=" + predicate + ", object=" + object + "]";
+		return predicate + ", \n" + object + "]";
 	}
 	
 	
