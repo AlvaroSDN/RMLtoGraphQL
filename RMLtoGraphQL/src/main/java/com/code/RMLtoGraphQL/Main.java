@@ -40,6 +40,9 @@ public class Main {
 		}
 		
 		resources = reader.read(mapping);
+		if(resources == null) {
+			return;
+		}
 		
 		File routeCreate = null;
 		boolean directorioValido = false;

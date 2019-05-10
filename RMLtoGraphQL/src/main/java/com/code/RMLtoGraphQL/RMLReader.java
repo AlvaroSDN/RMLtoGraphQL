@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.annotation.Resources;
+import javax.swing.JOptionPane;
 
 public class RMLReader {
 	private static final String triplesMap = "rr:TriplesMap";
@@ -40,28 +41,37 @@ public class RMLReader {
 				if(line.contains(triplesMap)) {
 					while(!(line = br.readLine()).contains("].")) {
 						if(line.contains(nameClass)) {
-							line = getParameter(line, nameClass);
-							nameClassString = line;
+							nameClassString = getParameter(line, nameClass);
 						}
 						else if(line.contains(predicate)) {
-							line = getParameter(line, predicate);
-							predicateString = line;
+							predicateString = getParameter(line, predicate);
 							predicates.add(new Predicate(predicateString, new ObjectMap()));
 						}
 						else if(line.contains(reference)) {
-							line = getParameter(line, reference);
-							referenceString = line;
+							referenceString = getParameter(line, reference);
 							predicates.get(predicates.size()-1).getObject().setReference(referenceString);
 						}
 						else if(line.contains(datatype)) {
-							line = getParameter(line, datatype);
-							datatypeString = line;
-							predicates.get(predicates.size()-1).getObject().setDatatype(datatype);
+							datatypeString = getParameter(line, datatype);
+							predicates.get(predicates.size()-1).getObject().setDatatype(datatypeString);
+						}
+					}
+					if(nameClassString == null) {
+						JOptionPane.showMessageDialog(null, "No se ha encontrado definido el atributo rr:class en el fichero mapping", "ERROR CON EL FICHERO MAPPING", JOptionPane.ERROR_MESSAGE);
+						return null;
+					}
+					for(int i = 0; i < predicates.size(); i++) {
+						if(predicates.get(i).getObject().getDatatype() == null) {
+							predicates.get(i).getObject().setDatatype("String");
 						}
 					}
 					resource = new Resource(nameClassString, predicates);
 					resources.add(resource);
 					predicates = new ArrayList<Predicate>();
+					nameClassString = null;
+					predicateString = null;
+					referenceString = null;
+					datatypeString = null;
 				}
 			}
 		} catch (IOException e) {

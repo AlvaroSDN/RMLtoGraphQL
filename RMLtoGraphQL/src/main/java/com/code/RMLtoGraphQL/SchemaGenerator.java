@@ -22,9 +22,13 @@ public class SchemaGenerator {
 		
 		try {
 			bw = new BufferedWriter(new FileWriter(schema));
-			ST schemaTemplate = new ST(templates.getSchemaTemplate(resources.size()));
+			ST schemaTemplate = new ST(templates.getSchemaTemplate(resources));
 			for(int i = 1; i < resources.size()+1; i++) {
 				schemaTemplate.add("resourceName" + i, resources.get(i-1).getNameClass());
+				for(int j = 1; j < resources.get(i-1).getPredicate().size()+1; j++) {
+					schemaTemplate.add("predicateName" + i+j, resources.get(i-1).getPredicate().get(j-1).getPredicate());
+					schemaTemplate.add("datatype" + i+j, resources.get(i-1).getPredicate().get(j-1).getObject().getDatatype());
+				}
 			}
 			String schemaString = schemaTemplate.render();
 			bw.write(schemaString);
