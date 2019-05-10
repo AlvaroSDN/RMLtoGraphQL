@@ -23,7 +23,7 @@ public class RMLReader {
 		super();
 	}
 
-	List<Resource> read(File mapping) {
+	public List<Resource> read(File mapping) {
 		List<Resource> resources = new ArrayList<Resource>();
 		FileReader fr = null;
 		try {
@@ -70,8 +70,8 @@ public class RMLReader {
 		seeResources(resources);
 		return resources;
 	} 
-	
-	String getParameter(String line, String typeParameter) {
+
+	private String getParameter(String line, String typeParameter) {
 		line = line.trim();
 		line = line.replace("\t", "");
 		int index = line.indexOf(typeParameter);
@@ -87,8 +87,8 @@ public class RMLReader {
 		}
 		return line;
 	}
-	
-	void seeResources(List<Resource> resources) {
+
+	private void seeResources(List<Resource> resources) {
 		for(int i = 0; i < resources.size(); i++) {
 			System.out.println(resources.get(i));
 		}
