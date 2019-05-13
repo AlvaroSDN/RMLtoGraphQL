@@ -16,29 +16,37 @@ public class CodeGenerator  {
 	}	
 
 	public void generateCode(String routeCreate, List<Resource> resources) {
-		routeCreate += "\\Student.java";
-		File schema = new File(routeCreate);
-		BufferedWriter bw = null;
+		generateResourcesClass(routeCreate, resources);
+	}
+
+	private void generateResourcesClass(String routeCreate, List<Resource> resources) {
+		for(int i = 0; i < resources.size(); i++) {
+			routeCreate += "\\" + resources.get(0).getNameClass() + ".java";
+			File file = new File(routeCreate);
+			generateResourceClass(file, resources.get(i));
+		}
+	}
+
+
+	private void generateResourceClass(File file, Resource resource) {
 		
+		BufferedWriter bw = null;
+
 		try {
-			bw = new BufferedWriter(new FileWriter(schema));
-			ST schemaTemplate = new ST(templates.getResourceClassTemplate(resources.get(0)));
-				schemaTemplate.add("resourceName", resources.get(0).getNameClass());
-				for(int i = 1; i < resources.get(0).getPredicate().size()+1; i++) {
-					schemaTemplate.add("predicateName" + i, resources.get(0).getPredicate().get(i-1).getPredicate());
-					schemaTemplate.add("datatype" + i, resources.get(0).getPredicate().get(i-1).getObject().getDatatype());
+			bw = new BufferedWriter(new FileWriter(file));
+			ST fileClassTemplate = new ST(templates.getResourceClassTemplate(resource));
+			fileClassTemplate.add("resourceName", resource.getNameClass());
+			for(int i = 1; i < resource.getPredicate().size()+1; i++) {
+				fileClassTemplate.add("predicateName" + i, resource.getPredicate().get(i-1).getPredicate());
+				fileClassTemplate.add("datatype" + i, resource.getPredicate().get(i-1).getObject().getDatatype());
 			}
-			String schemaString = schemaTemplate.render();
-			bw.write(schemaString);
+			String fileClassString = fileClassTemplate.render();
+			bw.write(fileClassString);
 			bw.close();
 
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-	}
-	
-	private void generateResourceClass(Resource resource) {
-		
 	}
 }
