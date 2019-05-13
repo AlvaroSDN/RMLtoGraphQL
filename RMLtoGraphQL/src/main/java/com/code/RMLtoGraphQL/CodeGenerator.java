@@ -21,8 +21,8 @@ public class CodeGenerator  {
 
 	private void generateResourcesClass(String routeCreate, List<Resource> resources) {
 		for(int i = 0; i < resources.size(); i++) {
-			routeCreate += "\\" + resources.get(0).getNameClass() + ".java";
-			File file = new File(routeCreate);
+			String routeFile = routeCreate + "\\" + resources.get(i).getNameClass() + ".java";
+			File file = new File(routeFile);
 			generateResourceClass(file, resources.get(i));
 		}
 	}
