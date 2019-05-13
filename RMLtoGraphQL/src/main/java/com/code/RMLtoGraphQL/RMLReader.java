@@ -95,6 +95,7 @@ public class RMLReader {
 		if(line.charAt(0) == '"') {
 			line = line.substring(1, line.length()-1);
 		}
+		line = line.replace(":", "");
 		return line;
 	}
 

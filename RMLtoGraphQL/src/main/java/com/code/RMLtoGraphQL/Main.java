@@ -12,6 +12,7 @@ public class Main {
 	private static Templates templates = new Templates();
 	private static RMLReader reader = new RMLReader();
 	private static SchemaGenerator schemaGen = new SchemaGenerator(templates);
+	private static CodeGenerator codeGen = new CodeGenerator(templates);
 
 	public static void main(String[] args) {
 		File exampleDirectory = getExampleDirectory(); 
@@ -38,12 +39,12 @@ public class Main {
 			else 
 				ficheroValido = true;
 		}
-		
+
 		resources = reader.read(mapping);
 		if(resources == null) {
 			return;
 		}
-		
+
 		File routeCreate = null;
 		boolean directorioValido = false;
 		JOptionPane.showMessageDialog(null, "Seleccione el directorio donde desee guardar su servidor GraphQL");
@@ -67,10 +68,9 @@ public class Main {
 		}
 		System.out.println(routeCreate);
 		schemaGen.generateSchema(routeCreate.getAbsolutePath(), resources);
-		
-		
+		codeGen.generateCode(routeCreate.getAbsolutePath(), resources);
 	}
-	
+
 	private static File getExampleDirectory() {
 		String path = new File("").getAbsolutePath();
 		int index = path.lastIndexOf("\\");
