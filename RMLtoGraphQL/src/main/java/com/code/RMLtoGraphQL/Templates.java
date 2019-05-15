@@ -8,6 +8,74 @@ public class Templates {
 		super();
 	}
 
+	public String getQueryTemplate(List<Resource> resources) {
+		String result = "package com.servidorGraphQL.code;\r\n" + 
+				"\r\n" + 
+				"import java.util.List;\r\n" + 
+				"\r\n" + 
+				"import com.coxautodev.graphql.tools.GraphQLRootResolver;\r\n" + 
+				"\r\n" + 
+				"public class Query implements GraphQLRootResolver {\r\n\n";
+		String variables = "";
+		String constructor = "\tpublic Query(";
+		String constructor2 = "";
+		String queries = "";
+		
+		for(int i = 1; i < resources.size()+1; i++) {
+			variables += "\tprivate final <resourceName" + i + ">Repository <resourceVarName" + i + ">Repository;\r\n";
+			constructor += "<resourceName" + i + ">Repository <resourceVarName" + i + ">Repository,\r\n";
+			constructor2 += "\t\tthis.<resourceVarName" + i + ">Repository = <resourceVarName" + i + ">Repository;\r\n";
+			queries += "\tpublic List<init><resourceName" + i + "><end> all<resourceName" + i + ">s() {\r\n" + 
+					"\t\treturn <resourceVarName" + i + ">Repository.getAll<resourceName" + i + ">s();\r\n" + 
+					"\t}\r\n\n";
+		}
+		constructor = constructor.substring(0, constructor.length()-3);
+		constructor += ") {\r\n";
+		constructor2 += "\t}\r\n\n";
+		result += variables + "\n" + constructor + constructor2 + queries + "}";
+		return result;
+	}
+	
+	public String getMutationTemplate(List<Resource> resources) {
+		String result = "package com.servidorGraphQL.code;\r\n" + 
+				"\r\n" + 
+				"import com.coxautodev.graphql.tools.GraphQLRootResolver;\r\n" + 
+				"\r\n" + 
+				"public class Mutation implements GraphQLRootResolver {\r\n\n";
+		String variables = "";
+		String constructor = "\tpublic Mutation(";
+		String constructor2 = "";
+		String mutations = "";
+		String arguments1 = null;
+		String arguments2 = null;
+		
+		for(int i = 1; i < resources.size()+1; i++) {
+			variables += "\tprivate final <resourceName" + i + ">Repository <resourceVarName" + i + ">Repository;\r\n";
+			constructor += "<resourceName" + i + ">Repository <resourceVarName" + i + ">Repository,\r\n";
+			constructor2 += "\t\tthis.<resourceVarName" + i + ">Repository = <resourceVarName" + i + ">Repository;\r\n";
+			
+			arguments1 = "(";
+			arguments2 = "(";
+			for(int j = 1; j < resources.get(i-1).getPredicate().size()+1; j++) {
+				arguments1 += "<datatype" + i+j + "> <predicateName" + i+j + ">, ";
+				arguments2 += "<predicateName" + i+j + ">, ";
+			}
+			arguments1 = arguments1.substring(0, arguments1.length()-2);
+			arguments1 += ") {\r\n";
+			arguments2 = arguments2.substring(0, arguments2.length()-2);
+			arguments2 += ");\r\n";
+			mutations += "\tpublic <resourceName" + i + "> create<resourceName" + i + ">" + arguments1 +  
+					"\t\t<resourceName" + i + "> new<resourceName" + i + "> = new <resourceName" + i + ">" + arguments2 + 
+					"\t\treturn <resourceVarName" + i + ">Repository.save<resourceName" + i + ">(new<resourceName" + i + ">);\r\n" + 
+					"\t}\r\n\n";
+		}
+		constructor = constructor.substring(0, constructor.length()-3);
+		constructor += ") {\r\n";
+		constructor2 += "\t}\r\n\n";
+		result += variables + "\n" + constructor + constructor2 + mutations + "}";
+		return result;
+	}
+	
 	public String getSchemaTemplate(List<Resource> resources) {
 		String result = "schema {\n\tquery: Query\n\tmutation: Mutation\n}\n\n"
 				+ "type Query {\n";
@@ -120,7 +188,7 @@ public class Templates {
 
 	private String getRepositoryGetAll() {
 		return "\tpublic List<init><resourceName><end> getAll<resourceName>s() {\r\n" + 
-				"\t\tList<init><resourceName><end> all<resourceName>s = new ArrayList<init><end>();\r\n" + 
+				"\t\tList<init><resourceName><end> all<resourceName>s = new ArrayList<init><resourceName><end>();\r\n" + 
 				"\t\tfor (Document doc : <resourceVarName>s.find()) {\r\n" + 
 				"\t\t\tall<resourceName>s.add(<resourceVarName>(doc));\r\n" + 
 				"\t\t}\r\n" + 
@@ -161,8 +229,4 @@ public class Templates {
 				"\t}\r\n";
 		return save + "\n" + constructor;
 	}
-
-	/*private String getRepositoryBuildFilter(Resource resource) {
-		String declaration = "";
-	} */
 }

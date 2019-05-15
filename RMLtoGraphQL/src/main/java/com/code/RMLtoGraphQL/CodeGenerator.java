@@ -16,10 +16,15 @@ public class CodeGenerator  {
 	}	
 
 	public void generateCode(String routeCreate, List<Resource> resources) {
+		String routeQueryClass = routeCreate + "\\Query.java";
+		String routeMutationClass = routeCreate + "\\Mutation.java";
+		File fileQueryClass = new File(routeQueryClass);
+		File fileMutationClass = new File(routeMutationClass);
+
+		generateQueryClass(fileQueryClass, resources);
+		generateMutationClass(fileMutationClass, resources);
 		generateResourcesCode(routeCreate, resources);
 	}
-
-
 
 	private void generateResourcesCode(String routeCreate, List<Resource> resources) {
 		for(int i = 0; i < resources.size(); i++) {
@@ -32,6 +37,52 @@ public class CodeGenerator  {
 		}
 	}
 
+	private void generateQueryClass(File file, List<Resource> resources) {
+		BufferedWriter bw = null;
+
+		try {
+			bw = new BufferedWriter(new FileWriter(file));
+			ST queryTemplate = new ST(templates.getQueryTemplate(resources));
+			queryTemplate.add("init", "<");
+			queryTemplate.add("end", ">");
+			for(int i = 1; i < resources.size()+1; i++) {
+				queryTemplate.add("resourceName" + i, resources.get(i-1).getNameClass());
+				queryTemplate.add("resourceVarName" + i, resources.get(i-1).getNameClass().toLowerCase());
+
+			}
+			String queryString = queryTemplate.render();
+			bw.write(queryString);
+			bw.close();
+
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+
+	private void generateMutationClass(File file, List<Resource> resources) {
+		BufferedWriter bw = null;
+
+		try {
+			bw = new BufferedWriter(new FileWriter(file));
+			ST mutationTemplate = new ST(templates.getMutationTemplate(resources));
+			for(int i = 1; i < resources.size()+1; i++) {
+				mutationTemplate.add("resourceName" + i, resources.get(i-1).getNameClass());
+				mutationTemplate.add("resourceVarName" + i, resources.get(i-1).getNameClass().toLowerCase());
+				for(int j = 1; j < resources.get(i-1).getPredicate().size()+1; j++) {
+					mutationTemplate.add("predicateName" + i+j, resources.get(i-1).getPredicate().get(j-1).getPredicate());
+					mutationTemplate.add("datatype" + i+j, resources.get(i-1).getPredicate().get(j-1).getObject().getDatatype());
+				}
+			}
+			String mutationString = mutationTemplate.render();
+			bw.write(mutationString);
+			bw.close();
+
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
 
 	private void generateResourceClass(File file, Resource resource) {
 		BufferedWriter bw = null;
