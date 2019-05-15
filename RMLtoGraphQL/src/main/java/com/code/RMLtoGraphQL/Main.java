@@ -11,9 +11,7 @@ public class Main {
 	private static List<Resource> resources = new ArrayList<Resource>();
 	private static Templates templates = new Templates();
 	private static RMLReader reader = new RMLReader();
-	private static SchemaGenerator schemaGen = new SchemaGenerator(templates);
-	private static CodeGenerator codeGen = new CodeGenerator(templates);
-
+	private static ProjectGenerator projectGenerator;
 	public static void main(String[] args) {
 		File exampleDirectory = getExampleDirectory(); 
 		// muestra el cuadro de diálogo de archivos, para que el usuario pueda elegir el archivo a abrir
@@ -67,8 +65,10 @@ public class Main {
 				directorioValido = true;
 		}
 		System.out.println(routeCreate);
-		schemaGen.generateSchema(routeCreate.getAbsolutePath(), resources);
-		codeGen.generateCode(routeCreate.getAbsolutePath(), resources);
+		projectGenerator = new ProjectGenerator(routeCreate.getAbsolutePath(), resources, templates);
+		projectGenerator.generateProject();
+		//schemaGen.generateSchema(routeCreate.getAbsolutePath(), resources);
+		//codeGen.generateCode(routeCreate.getAbsolutePath(), resources);
 	}
 
 	private static File getExampleDirectory() {

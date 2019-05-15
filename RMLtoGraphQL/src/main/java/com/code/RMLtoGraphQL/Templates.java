@@ -13,8 +13,7 @@ public class Templates {
 				+ "type Query {\n";
 
 		for(int i = 1; i < resources.size()+1; i++) {
-			result += "\tall<resourceName" + i + ">s(filter: <resourceName" + i + ">Filter, "
-					+ "skip: Int = 0, first: Int = 0): [<resourceName" + i + ">]\n";
+			result += "\tall<resourceName" + i + ">s: [<resourceName" + i + ">]\n";
 		}
 		result += "}\n\ntype Mutation {\n";
 
@@ -39,7 +38,7 @@ public class Templates {
 	}
 
 	public String getResourceClassTemplate(Resource resource) {
-		return "package com.servidor.graphql;\n\n\npublic class <resourceName> {\n\n" + 
+		return "package com.servidorGraphQL.code;\n\n\npublic class <resourceName> {\n\n" + 
 				this.getAttributesResource(resource) + "\n" + this.getConstructorResource(resource) +
 				this.getGettersResource(resource) + "}";
 	}
@@ -75,16 +74,95 @@ public class Templates {
 	private String getGettersResource(Resource resource) {
 		String getters = "";
 		for(int i = 1; i < resource.getPredicate().size()+1; i++) {
-			getters += "\n\tpublic <datatype" + i + "> get<predicateName" + i + ">() {\n\t\treturn <predicateName" + i + ">;\n\t}\n";
+			getters += "\n\tpublic <datatype" + i + "> get<predicateGetterName" + i + ">() {\n\t\treturn <predicateName" + i + ">;\n\t}\n";
 		}
 		return getters;
 	}
 
-	private String getttributesResource(Resource resource) {
-		String result = "\tprivate final String id;";
-		for(int i = 1; i < resource.getPredicate().size()+1; i++) {
-			result += "\n\tprivate final <datatype" + i + "> <predicateName" + i + ">;";
-		}
-		return result;
+	public String getResourceRepositoryTemplate(Resource resource) {
+		return "package com.servidorGraphQL.code;\n\n" +
+				this.getRepositoryImports() +
+				"\n\n" +
+				"public class <resourceName>Repository {\r\n" + 
+				"\r\n" + 
+				"\tprivate final MongoCollection<init>Document<end> <resourceVarName>s;\r\n" + 
+				"\r\n" + 
+				"\tpublic <resourceName>Repository(MongoCollection<init>Document<end> <resourceVarName>s) {\r\n" + 
+				"\t\tthis.<resourceVarName>s = <resourceVarName>s;\r\n" + 
+				"\t}\r\n\n" +
+				this.getRepositoryFind() + "\n\n" + this.getRepositoryGetAll() + 
+				"\n\n" + this.getRepositorySaveAndConstructorResource(resource) + "}";
 	}
+
+	private String getRepositoryImports() {
+		return "import com.mongodb.client.FindIterable;\r\n" + 
+				"import com.mongodb.client.MongoCollection;\r\n" + 
+				"\r\n" + 
+				"import org.bson.Document;\r\n" + 
+				"import org.bson.conversions.Bson;\r\n" + 
+				"import org.bson.types.ObjectId;\r\n" + 
+				"\r\n" + 
+				"import java.util.ArrayList;\r\n" + 
+				"import java.util.List;\r\n" + 
+				"import java.util.Optional;\r\n" + 
+				"\r\n" + 
+				"import static com.mongodb.client.model.Filters.and;\r\n" + 
+				"import static com.mongodb.client.model.Filters.eq;\r\n" + 
+				"import static com.mongodb.client.model.Filters.regex;";
+	}
+
+	private String getRepositoryFind() {
+		return "\tpublic <resourceName> findById(String id) {\r\n" + 
+				"\tDocument doc = <resourceVarName>s.find(eq(\"_id\", new ObjectId(id))).first();\r\n" + 
+				"\treturn <resourceVarName>(doc);\r\n" + 
+				"\t}";
+	}
+
+	private String getRepositoryGetAll() {
+		return "\tpublic List<init><resourceName><end> getAll<resourceName>s() {\r\n" + 
+				"\t\tList<init><resourceName><end> all<resourceName>s = new ArrayList<init><end>();\r\n" + 
+				"\t\tfor (Document doc : <resourceVarName>s.find()) {\r\n" + 
+				"\t\t\tall<resourceName>s.add(<resourceVarName>(doc));\r\n" + 
+				"\t\t}\r\n" + 
+				"\t\treturn all<resourceName>s;\r\n" + 
+				"\t}";
+	} 
+
+	/* private String getRepositoryGetAll() {
+		return "\tpublic List<<resourceName>> getAll<resourceName>s(<resourceName>Filter filter, int skip, int first) {\r\n" + 
+				"\t\tOptional<Bson> mongoFilter = Optional.ofNullable(filter).map(this::buildFilter);\r\n" + 
+				"\r\n" + 
+				"\t\tList<<resourceName>> all<resourceName>s = new ArrayList<>();\r\n" + 
+				"\t\tFindIterable<Document> documents = mongoFilter.map(<resourceVarName>s::find).orElseGet(<resourceVarName>s::find);\r\n" + 
+				"\t\tfor (Document doc : documents.skip(skip).limit(first)) {\r\n" + 
+				"\t\t\tall<resourceName>.add(<resourceVarName>(doc));\r\n" + 
+				"\t\t}\r\n" + 
+				"\t\treturn all<resourceName>s;\r\n" + 
+				"\t}";
+	} */
+
+	private String getRepositorySaveAndConstructorResource(Resource resource) {
+		String save = "\tpublic <resourceName> save<resourceName>(<resourceName> <resourceVarName>) {\r\n" + 
+				"\t\tDocument doc = new Document();\r\n"; 
+		String constructor = "\tprivate <resourceName> <resourceVarName>(Document doc) {\r\n";
+		String constructor2	= "\t\treturn new <resourceName>(\r\n" + 
+				"\t\t\tdoc.get(\"_id\").toString(),\r\n";
+
+		for(int i = 1; i < resource.getPredicate().size()+1; i++) {
+			save += "\t\tdoc.append(\"<referenceName" + i + ">\", <resourceVarName>.get<predicateGetterName" + i + ">());\r\n";
+			constructor2 += "\t\t\tdoc.get<datatypeGetterName" + i + ">(\"<referenceName" + i + ">\"),\r\n";
+		}
+		constructor2 = constructor2.substring(0, constructor2.length()-3);
+		constructor2 += ");\r\n";
+		save += "\t\t<resourceVarName>s.insertOne(doc);\r\n" + 
+				constructor2 +
+				"\t}\r\n";
+		constructor += constructor2 + 
+				"\t}\r\n";
+		return save + "\n" + constructor;
+	}
+
+	/*private String getRepositoryBuildFilter(Resource resource) {
+		String declaration = "";
+	} */
 }
