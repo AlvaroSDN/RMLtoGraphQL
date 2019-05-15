@@ -18,11 +18,14 @@ public class CodeGenerator  {
 	public void generateCode(String routeCreate, List<Resource> resources) {
 		String routeQueryClass = routeCreate + "\\Query.java";
 		String routeMutationClass = routeCreate + "\\Mutation.java";
+		String routeEndpointClass = routeCreate + "\\GraphQLEndpoint.java";
 		File fileQueryClass = new File(routeQueryClass);
 		File fileMutationClass = new File(routeMutationClass);
+		File fileEndpointClass = new File(routeEndpointClass);
 
 		generateQueryClass(fileQueryClass, resources);
 		generateMutationClass(fileMutationClass, resources);
+		generateEndpointClass(fileEndpointClass, resources);
 		generateResourcesCode(routeCreate, resources);
 	}
 
@@ -34,6 +37,29 @@ public class CodeGenerator  {
 			File fileRepository = new File(routeFileRepository);
 			generateResourceClass(fileClass, resources.get(i));
 			generateResourceRepository(fileRepository, resources.get(i));
+		}
+	}
+	
+	private void generateEndpointClass(File file, List<Resource> resources) {
+		BufferedWriter bw = null;
+
+		try {
+			bw = new BufferedWriter(new FileWriter(file));
+			ST endpointTemplate = new ST(templates.getEndpointTemplate(resources));
+			endpointTemplate.add("init", "<");
+			endpointTemplate.add("end", ">");
+			for(int i = 1; i < resources.size()+1; i++) {
+				endpointTemplate.add("resourceName" + i, resources.get(i-1).getNameClass());
+				endpointTemplate.add("resourceVarName" + i, resources.get(i-1).getNameClass().toLowerCase());
+
+			}
+			String endpointString = endpointTemplate.render();
+			bw.write(endpointString);
+			bw.close();
+
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
 	}
 

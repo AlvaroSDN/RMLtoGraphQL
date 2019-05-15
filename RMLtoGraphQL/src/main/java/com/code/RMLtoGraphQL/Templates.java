@@ -8,6 +8,42 @@ public class Templates {
 		super();
 	}
 
+	public String getEndpointTemplate(List<Resource> resources) {
+		String result = "package com.servidorGraphQL.code;\r\n\n";
+		String mongo = "\tstatic {\r\n" +
+				"\t\tMongoDatabase mongo = new MongoClient().getDatabase(\"Database_GraphQL\");\r\n";
+		String attributes = "@WebServlet(urlPatterns = \"/graphql\")\r\n" + 
+				"public class GraphQLEndpoint extends SimpleGraphQLServlet {\r\n" + 
+				"\r\n" + 
+				"\tprivate static final long serialVersionUID = 1L;\r\n";
+		String arguments = "(";
+		for(int i = 1; i < resources.size()+1; i++) {
+			mongo += "\t\t<resourceVarName" + i + ">Repository = new <resourceName" + i + 
+					">Repository(mongo.getCollection(\"<resourceName" + i + ">s\"));\r\n";
+			attributes += "\tprivate static final <resourceName" + i + ">Repository <resourceVarName" + i + ">Repository;\r\n";
+			arguments += "<resourceVarName" + i + ">Repository, "; 
+		}
+		arguments = arguments.substring(0, arguments.length()-2);
+		String arguments2 = arguments + "))\r\n";
+		arguments += "),\r\n";
+		String build = "\tprivate static GraphQLSchema buildSchema() {\r\n" + 
+				"\t\treturn SchemaParser.newParser()\r\n" + 
+				"\t\t\t.file(\"schema.graphqls\")\r\n" + 
+				"\t\t\t.resolvers(new Query" + arguments + "\t\t\t\tnew Mutation" + arguments2 +
+				"\t\t\t.build()\r\n" +
+				"\t\t\t.makeExecutableSchema();" +
+				"\t}\r\n\n";
+
+		mongo += "\t}\r\n\n";
+		attributes += "\n";
+		result += getEndpointImports() + "\r\n\n" + attributes + mongo + 
+				"\tpublic GraphQLEndpoint() {\r\n" + 
+				"\t\tsuper(buildSchema());\r\n" + 
+				"\t}\r\n\n" + build + getEndpointErrors() + "}";
+
+		return result;
+	}
+
 	public String getQueryTemplate(List<Resource> resources) {
 		String result = "package com.servidorGraphQL.code;\r\n" + 
 				"\r\n" + 
@@ -20,7 +56,7 @@ public class Templates {
 		String constructor = "\tpublic Query(";
 		String constructor2 = "";
 		String queries = "";
-		
+
 		for(int i = 1; i < resources.size()+1; i++) {
 			variables += "\tprivate final <resourceName" + i + ">Repository <resourceVarName" + i + ">Repository;\r\n";
 			constructor += "<resourceName" + i + ">Repository <resourceVarName" + i + ">Repository,\r\n";
@@ -35,7 +71,7 @@ public class Templates {
 		result += variables + "\n" + constructor + constructor2 + queries + "}";
 		return result;
 	}
-	
+
 	public String getMutationTemplate(List<Resource> resources) {
 		String result = "package com.servidorGraphQL.code;\r\n" + 
 				"\r\n" + 
@@ -48,12 +84,12 @@ public class Templates {
 		String mutations = "";
 		String arguments1 = null;
 		String arguments2 = null;
-		
+
 		for(int i = 1; i < resources.size()+1; i++) {
 			variables += "\tprivate final <resourceName" + i + ">Repository <resourceVarName" + i + ">Repository;\r\n";
 			constructor += "<resourceName" + i + ">Repository <resourceVarName" + i + ">Repository,\r\n";
 			constructor2 += "\t\tthis.<resourceVarName" + i + ">Repository = <resourceVarName" + i + ">Repository;\r\n";
-			
+
 			arguments1 = "(";
 			arguments2 = "(";
 			for(int j = 1; j < resources.get(i-1).getPredicate().size()+1; j++) {
@@ -75,7 +111,7 @@ public class Templates {
 		result += variables + "\n" + constructor + constructor2 + mutations + "}";
 		return result;
 	}
-	
+
 	public String getSchemaTemplate(List<Resource> resources) {
 		String result = "schema {\n\tquery: Query\n\tmutation: Mutation\n}\n\n"
 				+ "type Query {\n";
@@ -140,7 +176,9 @@ public class Templates {
 	}
 
 	private String getGettersResource(Resource resource) {
-		String getters = "";
+		String getters = "\n\tpublic String getId() {\r\n" + 
+				"\t\treturn id;\r\n" + 
+				"\t}";
 		for(int i = 1; i < resource.getPredicate().size()+1; i++) {
 			getters += "\n\tpublic <datatype" + i + "> get<predicateGetterName" + i + ">() {\n\t\treturn <predicateName" + i + ">;\n\t}\n";
 		}
@@ -160,6 +198,36 @@ public class Templates {
 				"\t}\r\n\n" +
 				this.getRepositoryFind() + "\n\n" + this.getRepositoryGetAll() + 
 				"\n\n" + this.getRepositorySaveAndConstructorResource(resource) + "}";
+	}
+
+	private String getEndpointImports() {
+		return "import com.coxautodev.graphql.tools.SchemaParser;\r\n" + 
+				"import com.mongodb.MongoClient;\r\n" + 
+				"import com.mongodb.client.MongoDatabase;\r\n" + 
+				"\r\n" + 
+				"import java.util.List;\r\n" + 
+				"import java.util.Optional;\r\n" + 
+				"import java.util.stream.Collectors;\r\n" + 
+				"\r\n" + 
+				"import javax.servlet.annotation.WebServlet;\r\n" + 
+				"import javax.servlet.http.HttpServletRequest;\r\n" + 
+				"import javax.servlet.http.HttpServletResponse;\r\n" + 
+				"\r\n" + 
+				"import graphql.ExceptionWhileDataFetching;\r\n" + 
+				"import graphql.GraphQLError;\r\n" + 
+				"import graphql.schema.GraphQLSchema;\r\n" + 
+				"import graphql.servlet.GraphQLContext;\r\n" + 
+				"import graphql.servlet.SimpleGraphQLServlet;";
+	}
+
+	private String getEndpointErrors() {
+		return "@Override\r\n" + 
+				"\tprotected List<init>GraphQLError<end> filterGraphQLErrors(List<init>GraphQLError<end> errors) {\r\n" + 
+				"\t\treturn errors.stream()\r\n" + 
+				"\t\t\t.filter(e -> e instanceof ExceptionWhileDataFetching || super.isClientError(e))\r\n" + 
+				"\t\t\t.map(e -> e instanceof ExceptionWhileDataFetching ? new SanitizedError((ExceptionWhileDataFetching) e) : e)\r\n" + 
+				"\t\t\t.collect(Collectors.toList());\r\n" + 
+				"\t}\r\n\n";
 	}
 
 	private String getRepositoryImports() {
