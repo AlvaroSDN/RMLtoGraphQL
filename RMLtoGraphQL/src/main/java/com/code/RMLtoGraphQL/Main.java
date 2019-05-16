@@ -1,6 +1,7 @@
 package com.code.RMLtoGraphQL;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -8,12 +9,13 @@ import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 
 public class Main {
-	private static List<Resource> resources = new ArrayList<Resource>();
+	private static RMLFile rmlFile = null;
 	private static Templates templates = new Templates();
 	private static RMLReader reader = new RMLReader();
 	private static ProjectGenerator projectGenerator;
+	
 	public static void main(String[] args) {
-		File exampleDirectory = getExampleDirectory(); 
+		File exampleDirectory = new File(getExampleDirectory()); 
 		// muestra el cuadro de diálogo de archivos, para que el usuario pueda elegir el archivo a abrir
 		boolean ficheroValido = false;
 		File mapping = null;
@@ -38,8 +40,8 @@ public class Main {
 				ficheroValido = true;
 		}
 
-		resources = reader.read(mapping);
-		if(resources == null) {
+		rmlFile = reader.read(mapping);
+		if(rmlFile == null) {
 			return;
 		}
 
@@ -64,17 +66,29 @@ public class Main {
 			else 
 				directorioValido = true;
 		}
-		System.out.println(routeCreate);
-		projectGenerator = new ProjectGenerator(routeCreate.getAbsolutePath(), resources, templates);
+		projectGenerator = new ProjectGenerator(getServerDirectory(), routeCreate.getAbsolutePath(), rmlFile, templates);
 		projectGenerator.generateProject();
-		//schemaGen.generateSchema(routeCreate.getAbsolutePath(), resources);
-		//codeGen.generateCode(routeCreate.getAbsolutePath(), resources);
 	}
 
-	private static File getExampleDirectory() {
+	private static String getExampleDirectory() {
 		String path = new File("").getAbsolutePath();
+		path = fixRoute(path);
 		int index = path.lastIndexOf("\\");
 		path = path.substring(0, index) + "\\Ejemplos";
-		return new File(path);
+		return path;
+	}
+	
+	private static String getServerDirectory() {
+		String path = new File("").getAbsolutePath();
+		path = fixRoute(path);
+		return path + "\\serverData";
+	}
+	
+	private static String fixRoute(String route) {
+		if(!route.contains("src")) {
+			return route + "\\src";
+		}
+		else
+			return route;
 	}
 }

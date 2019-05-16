@@ -15,7 +15,7 @@ public class CodeGenerator  {
 		this.templates = templates;
 	}	
 
-	public void generateCode(String routeCreate, List<Resource> resources) {
+	public void generateCode(String routeCreate, RMLFile rmlFile) {
 		String routeQueryClass = routeCreate + "\\Query.java";
 		String routeMutationClass = routeCreate + "\\Mutation.java";
 		String routeEndpointClass = routeCreate + "\\GraphQLEndpoint.java";
@@ -23,10 +23,10 @@ public class CodeGenerator  {
 		File fileMutationClass = new File(routeMutationClass);
 		File fileEndpointClass = new File(routeEndpointClass);
 
-		generateQueryClass(fileQueryClass, resources);
-		generateMutationClass(fileMutationClass, resources);
-		generateEndpointClass(fileEndpointClass, resources);
-		generateResourcesCode(routeCreate, resources);
+		generateQueryClass(fileQueryClass, rmlFile.getResources());
+		generateMutationClass(fileMutationClass, rmlFile.getResources());
+		generateEndpointClass(fileEndpointClass, rmlFile);
+		generateResourcesCode(routeCreate, rmlFile.getResources());
 	}
 
 	private void generateResourcesCode(String routeCreate, List<Resource> resources) {
@@ -40,18 +40,19 @@ public class CodeGenerator  {
 		}
 	}
 	
-	private void generateEndpointClass(File file, List<Resource> resources) {
+	private void generateEndpointClass(File file, RMLFile rmlFile) {
 		BufferedWriter bw = null;
 
 		try {
 			bw = new BufferedWriter(new FileWriter(file));
-			ST endpointTemplate = new ST(templates.getEndpointTemplate(resources));
+			ST endpointTemplate = new ST(templates.getEndpointTemplate(rmlFile.getResources()));
 			endpointTemplate.add("init", "<");
 			endpointTemplate.add("end", ">");
-			for(int i = 1; i < resources.size()+1; i++) {
-				endpointTemplate.add("resourceName" + i, resources.get(i-1).getNameClass());
-				endpointTemplate.add("resourceVarName" + i, resources.get(i-1).getNameClass().toLowerCase());
-
+			endpointTemplate.add("sourceName", rmlFile.getSource());
+			for(int i = 1; i < rmlFile.getResources().size()+1; i++) {
+				endpointTemplate.add("resourceName" + i, rmlFile.getResources().get(i-1).getNameClass());
+				endpointTemplate.add("resourceVarName" + i, rmlFile.getResources().get(i-1).getNameClass().toLowerCase());
+				endpointTemplate.add("iteratorName" + i, rmlFile.getResources().get(i-1).getIterator());
 			}
 			String endpointString = endpointTemplate.render();
 			bw.write(endpointString);

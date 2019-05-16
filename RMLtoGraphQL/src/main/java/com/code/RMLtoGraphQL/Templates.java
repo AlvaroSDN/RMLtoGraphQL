@@ -11,7 +11,7 @@ public class Templates {
 	public String getEndpointTemplate(List<Resource> resources) {
 		String result = "package com.servidorGraphQL.code;\r\n\n";
 		String mongo = "\tstatic {\r\n" +
-				"\t\tMongoDatabase mongo = new MongoClient().getDatabase(\"Database_GraphQL\");\r\n";
+				"\t\tMongoDatabase mongo = new MongoClient().getDatabase(\"<sourceName>\");\r\n";
 		String attributes = "@WebServlet(urlPatterns = \"/graphql\")\r\n" + 
 				"public class GraphQLEndpoint extends SimpleGraphQLServlet {\r\n" + 
 				"\r\n" + 
@@ -19,7 +19,7 @@ public class Templates {
 		String arguments = "(";
 		for(int i = 1; i < resources.size()+1; i++) {
 			mongo += "\t\t<resourceVarName" + i + ">Repository = new <resourceName" + i + 
-					">Repository(mongo.getCollection(\"<resourceName" + i + ">s\"));\r\n";
+					">Repository(mongo.getCollection(\"<iteratorName" + i + ">\"));\r\n";
 			attributes += "\tprivate static final <resourceName" + i + ">Repository <resourceVarName" + i + ">Repository;\r\n";
 			arguments += "<resourceVarName" + i + ">Repository, "; 
 		}

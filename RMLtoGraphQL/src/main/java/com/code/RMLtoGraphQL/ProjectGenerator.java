@@ -9,32 +9,35 @@ import java.io.OutputStream;
 import java.util.List;
 
 public class ProjectGenerator {
-	private static String routeCreate;
-	private static String routeServer;
-	private static List<Resource> resources;
-	private static Templates templates;
+	private String routeCreate;
+	private String routeServer;
+	private RMLFile rmlFile;
+	private Templates templates;
 	private static SchemaGenerator schemaGenerator;
 	private static CodeGenerator codeGenerator;
 
-	public ProjectGenerator(String routeCreate, List<Resource> resources, Templates templates) {
+	public ProjectGenerator(String routeServer, String routeCreate, RMLFile rmlFile, Templates templates) {
 		this.routeCreate = routeCreate + "\\ServidorGraphQL";
-		this.resources = resources;
+		this.routeServer = routeServer;
+		this.rmlFile = rmlFile;
 		this.templates = templates;
 		
-		routeServer = new File("").getAbsolutePath() + "\\serverData";
 		
-		schemaGenerator = new SchemaGenerator(templates);
-		codeGenerator = new CodeGenerator(templates);
+		schemaGenerator = new SchemaGenerator(this.templates);
+		codeGenerator = new CodeGenerator(this.templates);
 	}
 
 	public void generateProject() {
+		System.out.println(routeCreate);
+		System.out.println(routeServer);
+		
 		copyDirectory(new File(routeServer), new File(routeCreate));
 		
 		String routeSchema = routeCreate + "\\src\\main\\resources";
-		schemaGenerator.generateSchema(routeSchema, resources);
+		schemaGenerator.generateSchema(routeSchema, rmlFile.getResources());
 		
 		String routeCode = routeCreate + "\\src\\main\\java\\com\\servidorGraphQL\\code";
-		codeGenerator.generateCode(routeCode, resources);
+		codeGenerator.generateCode(routeCode, rmlFile);
 	}
 
 	private static void copyDirectory(File d1, File d2) {
