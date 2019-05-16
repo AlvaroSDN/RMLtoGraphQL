@@ -12,9 +12,9 @@
     
   rml:logicalSource [ 
 	rr:class "Student";
-    rml:source "student.json";
+    rml:source "Universidad";
     rml:referenceFormulation ql:JSONPath;
-    rml:iterator "$.students[*]"
+    rml:iterator "$.estudiantes[*]"
   ];
 
   rr:subjectMap <#NameSubjectMap> ;
