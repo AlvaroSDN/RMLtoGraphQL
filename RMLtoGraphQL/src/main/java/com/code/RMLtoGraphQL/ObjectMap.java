@@ -3,14 +3,16 @@ package com.code.RMLtoGraphQL;
 public class ObjectMap {
 	private String reference;
 	private String datatype;
+	private String template;
 	
 	public ObjectMap() {
 		super();
 	}
 	
-	public ObjectMap(String reference, String datatype) {
+	public ObjectMap(String reference, String datatype, String template) {
 		this.reference = reference;
 		this.datatype = datatype;
+		this.template = template;
 	}
 	public String getReference() {
 		return reference;
@@ -25,9 +27,17 @@ public class ObjectMap {
 		this.datatype = datatype;
 	}
 	
+	public String getTemplate() {
+		return template;
+	}
+
+	public void setTemplate(String template) {
+		this.template = template;
+	}
+
 	@Override
 	public String toString() {
-		return "ObjectMap\n[reference=" + reference + ", \ndatatype=" + datatype + "]";
+		return "ObjectMap\n[reference=" + reference + ", \ndatatype=" + datatype + ", \ntemplate=" + template + "]";
 	}
 	
 	

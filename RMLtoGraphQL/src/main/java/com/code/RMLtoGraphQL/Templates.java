@@ -93,8 +93,13 @@ public class Templates {
 			arguments1 = "(";
 			arguments2 = "(";
 			for(int j = 1; j < resources.get(i-1).getPredicate().size()+1; j++) {
-				arguments1 += "<datatype" + i+j + "> <predicateName" + i+j + ">, ";
-				arguments2 += "<predicateName" + i+j + ">, ";
+				if(resources.get(i-1).getPredicate().get(j-1).getObject().getTemplate() == null) {
+					arguments1 += "<datatype" + i+j + "> <predicateName" + i+j + ">, ";
+					arguments2 += "<predicateName" + i+j + ">, ";
+				}
+				else {
+					arguments2 += "null, ";
+				}
 			}
 			arguments1 = arguments1.substring(0, arguments1.length()-2);
 			arguments1 += ") {\r\n";
@@ -124,7 +129,9 @@ public class Templates {
 		for(int i = 1; i < resources.size()+1; i++) {
 			result += "\tcreate<resourceName" + i + ">(";
 			for(int j = 1; j < resources.get(i-1).getPredicate().size()+1; j++) {
-				result += "<predicateName" + i+j + ">: <datatype" + i+j + ">!, ";
+				if(resources.get(i-1).getPredicate().get(j-1).getObject().getTemplate() == null) {
+					result += "<predicateName" + i+j + ">: <datatype" + i+j + ">!, ";
+				}
 			}
 			result = result.substring(0, result.length()-2);
 			result += "): <resourceName" + i + ">\n";
@@ -285,8 +292,13 @@ public class Templates {
 				"\t\t\tdoc.get(\"_id\").toString(),\r\n";
 
 		for(int i = 1; i < resource.getPredicate().size()+1; i++) {
-			save += "\t\tdoc.append(\"<referenceName" + i + ">\", <resourceVarName>.get<predicateGetterName" + i + ">());\r\n";
-			constructor2 += "\t\t\tdoc.get<datatypeGetterName" + i + ">(\"<referenceName" + i + ">\"),\r\n";
+			if(resource.getPredicate().get(i-1).getObject().getTemplate() == null) {
+				save += "\t\tdoc.append(\"<referenceName" + i + ">\", <resourceVarName>.get<predicateGetterName" + i + ">());\r\n";
+				constructor2 += "\t\t\tdoc.get<datatypeGetterName" + i + ">(\"<referenceName" + i + ">\"),\r\n";
+			}
+			else {
+				constructor2 += "\t\t\t\"" + getTemplateString(resource, resource.getPredicate().get(i-1)) + "\",\r\n";
+			}
 		}
 		constructor2 = constructor2.substring(0, constructor2.length()-3);
 		constructor2 += ");\r\n";
@@ -296,5 +308,16 @@ public class Templates {
 		constructor += constructor2 + 
 				"\t}\r\n";
 		return save + "\n" + constructor;
+	}
+
+	private String getTemplateString(Resource resource, Predicate predicate) {
+		String template = predicate.getObject().getTemplate();
+		for(int i = 1; i < resource.getPredicate().size()+1; i++) {
+			if(resource.getPredicate().get(i-1).getObject().getReference() != null && template.contains(resource.getPredicate().get(i-1).getObject().getReference())) {
+				template = template.replaceAll(resource.getPredicate().get(i-1).getObject().getReference(), "\" + doc.getString(\"<referenceName" + i + ">\") + \"");
+			}
+		}
+
+		return template;
 	}
 }

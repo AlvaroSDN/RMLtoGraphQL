@@ -39,7 +39,7 @@ public class RMLReader {
 		BufferedReader br = new BufferedReader(fr);
 		List<Predicate> predicates = new ArrayList<Predicate>();
 		String line, nameClassString = null, predicateString = null, referenceString = null, 
-				datatypeString = null, sourceString = null, iteratorString = null;
+				datatypeString = null, sourceString = null, iteratorString = null, templateString = null;
 		Resource resource;
 		try {
 			while((line = br.readLine()) != null) {
@@ -58,6 +58,10 @@ public class RMLReader {
 							predicateString = getParameter(line, predicate);
 							predicates.add(new Predicate(predicateString, new ObjectMap()));
 						}
+						else if(line.contains(template)) {
+							templateString = getParameter(line, template);
+							predicates.get(predicates.size()-1).getObject().setTemplate(templateString);;
+						}
 						else if(line.contains(reference)) {
 							referenceString = getParameter(line, reference);
 							predicates.get(predicates.size()-1).getObject().setReference(referenceString);
@@ -67,7 +71,12 @@ public class RMLReader {
 							predicates.get(predicates.size()-1).getObject().setDatatype(datatypeString);
 						}
 					}
-					if(nameClassString == null) {
+					
+					if(sourceString == null) {
+						JOptionPane.showMessageDialog(null, "No se ha encontrado definido el atributo rr:source en el fichero mapping", "ERROR CON EL FICHERO MAPPING", JOptionPane.ERROR_MESSAGE);
+						return null;
+					}
+					else if(nameClassString == null) {
 						JOptionPane.showMessageDialog(null, "No se ha encontrado definido el atributo rr:class en el fichero mapping", "ERROR CON EL FICHERO MAPPING", JOptionPane.ERROR_MESSAGE);
 						return null;
 					}
@@ -75,11 +84,13 @@ public class RMLReader {
 						JOptionPane.showMessageDialog(null, "No se ha encontrado definido el atributo rml:iterator en el fichero mapping", "ERROR CON EL FICHERO MAPPING", JOptionPane.ERROR_MESSAGE);
 						return null;
 					}
+					
 					for(int i = 0; i < predicates.size(); i++) {
 						if(predicates.get(i).getObject().getDatatype() == null) {
 							predicates.get(i).getObject().setDatatype("String");
 						}
 					}
+					
 					resource = new Resource(nameClassString, iteratorString, predicates);
 					resources.add(resource);
 					predicates = new ArrayList<Predicate>();
@@ -88,6 +99,7 @@ public class RMLReader {
 					referenceString = null;
 					datatypeString = null;
 					iteratorString = null;
+					templateString = null;
 				}
 			}
 		} catch (IOException e) {
