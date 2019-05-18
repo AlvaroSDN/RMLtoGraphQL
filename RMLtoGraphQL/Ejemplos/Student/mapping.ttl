@@ -16,7 +16,7 @@
   ];
   
   rr:subjectMap [
-    rr:termType rr:BlankNode;
+    rr:template "http://example.com/{nombre}";
     rr:class "Student";
   ];
 
@@ -33,6 +33,13 @@
       rml:reference "nombre";
     ]
   ];
+  
+  rr:predicateObjectMap [
+    rr:predicate schema:teacher;
+    rr:objectMap  [
+      rr:parentTriplesMap "Teacher";
+      ]
+  ];
 
   rr:predicateObjectMap [ 
     rr:predicate schema:familyName; 
@@ -42,7 +49,52 @@
   ];
   
   rr:predicateObjectMap [ 
-    rr:predicate foaf:fullName; 
+    rr:predicate schema:fullName
+    rr:objectMap [
+      rr:template "{apellido}, {nombre}";
+    ]
+  ];
+  
+  
+].  
+  
+  <TEACHERMAPPING>
+  a rr:TriplesMap;
+    
+  rml:logicalSource [ 
+	rml:source "Universidad";
+    rml:referenceFormulation ql:JSONPath;
+    rml:iterator "$.profesores[*]"
+  ];
+  
+  rr:subjectMap [
+    rr:template "http://example.com/{nombre}";
+    rr:class "Teacher";
+  ];
+
+  rr:predicateObjectMap [
+    rr:predicate schema:identifier; 
+    rr:objectMap [
+      rr:template "http://example.com/{nombre}";
+    ]
+  ];
+  
+   rr:predicateObjectMap [
+    rr:predicate schema:givenName; 
+    rr:objectMap [
+      rml:reference "nombre";
+    ]
+  ];
+
+  rr:predicateObjectMap [ 
+    rr:predicate schema:familyName; 
+    rr:objectMap [
+      rml:reference "apellido";
+    ]
+  ];
+  
+  rr:predicateObjectMap [ 
+    rr:predicate schema:fullName
     rr:objectMap [
       rr:template "{apellido}, {nombre}";
     ]

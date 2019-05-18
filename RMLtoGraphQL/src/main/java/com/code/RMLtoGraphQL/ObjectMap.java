@@ -1,6 +1,7 @@
 package com.code.RMLtoGraphQL;
 
 public class ObjectMap {
+	private String relation;
 	private String reference;
 	private String datatype;
 	private String template;
@@ -9,7 +10,8 @@ public class ObjectMap {
 		super();
 	}
 	
-	public ObjectMap(String reference, String datatype, String template) {
+	public ObjectMap(String relation, String reference, String datatype, String template) {
+		this.relation = relation;
 		this.reference = reference;
 		this.datatype = datatype;
 		this.template = template;
@@ -35,9 +37,17 @@ public class ObjectMap {
 		this.template = template;
 	}
 
+	public String getRelation() {
+		return relation;
+	}
+
+	public void setRelation(String relation) {
+		this.relation = relation;
+	}
+
 	@Override
 	public String toString() {
-		return "ObjectMap\n[reference=" + reference + ", \ndatatype=" + datatype + ", \ntemplate=" + template + "]";
+		return "ObjectMap\n[relation=" + relation + ", \nreference=" + reference + ", \ndatatype=" + datatype + ", \ntemplate=" + template + "]";
 	}
 	
 	

@@ -4,13 +4,17 @@ import java.util.List;
 
 public class Resource  {
 	private String nameClass;
+	private String templateMain;
 	private List<Predicate> predicates;
 	private String iterator;
+	private boolean haveRelation;
 	
-	public Resource(String nameClass, String iterator, List<Predicate> predicates) {
+	public Resource(String nameClass, String templateMain, String iterator, List<Predicate> predicates, boolean haveRelation) {
 		this.nameClass = nameClass;
+		this.templateMain = templateMain;
 		this.iterator = iterator;
 		this.predicates = predicates;
+		this.haveRelation = haveRelation;
 	}
 	
 	public String getNameClass() {
@@ -32,6 +36,22 @@ public class Resource  {
 
 	public void setIterator(String iterator) {
 		this.iterator = iterator;
+	}
+
+	public String getTemplateMain() {
+		return templateMain;
+	}
+
+	public void setTemplateMain(String templateMain) {
+		this.templateMain = templateMain;
+	}
+	
+	public boolean isHaveRelation() {
+		return haveRelation;
+	}
+
+	public void setHaveRelation(boolean haveRelation) {
+		this.haveRelation = haveRelation;
 	}
 
 	@Override

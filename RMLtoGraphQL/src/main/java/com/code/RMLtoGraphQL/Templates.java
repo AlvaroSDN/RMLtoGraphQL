@@ -16,22 +16,36 @@ public class Templates {
 				"public class GraphQLEndpoint extends SimpleGraphQLServlet {\r\n" + 
 				"\r\n" + 
 				"\tprivate static final long serialVersionUID = 1L;\r\n";
+		String resolvers = "";
 		String arguments = "(";
 		for(int i = 1; i < resources.size()+1; i++) {
 			mongo += "\t\t<resourceVarName" + i + ">Repository = new <resourceName" + i + 
 					">Repository(mongo.getCollection(\"<iteratorName" + i + ">\"));\r\n";
 			attributes += "\tprivate static final <resourceName" + i + ">Repository <resourceVarName" + i + ">Repository;\r\n";
 			arguments += "<resourceVarName" + i + ">Repository, "; 
+			if(resources.get(i-1).isHaveRelation()) {
+				resolvers += "\t\t\t\tnew <resourceName" + i + ">Resolver(";
+				
+				for(int j = 1; j < resources.get(i-1).getPredicate().size()+1; j++) {
+					if(resources.get(i-1).getPredicate().get(j-1).getObject().getRelation() != null) {
+						resolvers += "<resourceVarNameRelation" + i+j + ">Repository, ";
+					}
+				}
+				resolvers = resolvers.substring(0, resolvers.length()-2);
+				resolvers += "),\r\n";
+			}
 		}
+		resolvers = resolvers.substring(0, resolvers.length()-4);
 		arguments = arguments.substring(0, arguments.length()-2);
-		String arguments2 = arguments + "))\r\n";
+		String arguments2 = arguments + "),\r\n";
 		arguments += "),\r\n";
 		String build = "\tprivate static GraphQLSchema buildSchema() {\r\n" + 
 				"\t\treturn SchemaParser.newParser()\r\n" + 
 				"\t\t\t.file(\"schema.graphqls\")\r\n" + 
 				"\t\t\t.resolvers(new Query" + arguments + "\t\t\t\tnew Mutation" + arguments2 +
+				resolvers + "))\r\n" +
 				"\t\t\t.build()\r\n" +
-				"\t\t\t.makeExecutableSchema();" +
+				"\t\t\t.makeExecutableSchema();\r\n" +
 				"\t}\r\n\n";
 
 		mongo += "\t}\r\n\n";
@@ -94,8 +108,14 @@ public class Templates {
 			arguments2 = "(";
 			for(int j = 1; j < resources.get(i-1).getPredicate().size()+1; j++) {
 				if(resources.get(i-1).getPredicate().get(j-1).getObject().getTemplate() == null) {
-					arguments1 += "<datatype" + i+j + "> <predicateName" + i+j + ">, ";
-					arguments2 += "<predicateName" + i+j + ">, ";
+					if(resources.get(i-1).getPredicate().get(j-1).getObject().getRelation() == null) {
+						arguments1 += "<datatype" + i+j + "> <predicateName" + i+j + ">, ";
+						arguments2 += "<predicateName" + i+j + ">, ";
+					}
+					else {
+						arguments1 += "String <predicateName" + i+j + ">Id, ";
+						arguments2 += "<predicateName" + i+j + ">Id, ";
+					}
 				}
 				else {
 					arguments2 += "null, ";
@@ -117,6 +137,35 @@ public class Templates {
 		return result;
 	}
 
+	public String getResolverTemplate(Resource resource) {
+		String result = "package com.servidorGraphQL.code;\r\n" + 
+				"\r\n" + 
+				"import com.coxautodev.graphql.tools.GraphQLResolver;\r\n" + 
+				"\r\n" + 
+				"public class <resourceName>Resolver implements GraphQLResolver<init><resourceName><end> {\r\n\n";
+		String variables = "";
+		String constructor = "\tpublic <resourceName>Resolver(";
+		String constructor2 = "";
+		String resolvers = "";
+
+		for(int i = 1; i < resource.getPredicate().size()+1; i++) {
+			if(resource.getPredicate().get(i-1).getObject().getRelation() != null) {
+				variables += "\tprivate final <resourceNameRelation" + i + ">Repository <resourceVarNameRelation" + i + ">Repository;\r\n";
+				constructor += "<resourceNameRelation" + i + ">Repository <resourceVarNameRelation" + i + ">Repository,\r\n";
+				constructor2 += "\t\tthis.<resourceVarNameRelation" + i + ">Repository = <resourceVarNameRelation" + i + ">Repository;\r\n";
+
+				resolvers += "\tpublic <resourceNameRelation" + i + "> <resourceVarNameRelation" + i + ">(<resourceName> <resourceVarName>) {\r\n" +
+						"\t\treturn <resourceVarNameRelation" + i + ">Repository.findById(<resourceVarName>.get<resourceNameRelation" + i + ">Id());\r\n" + 
+						"\t}\r\n\n";
+			}
+		}
+		constructor = constructor.substring(0, constructor.length()-3);
+		constructor += ") {\r\n";
+		constructor2 += "\t}\r\n\n";
+		result += variables + "\n" + constructor + constructor2 + resolvers + "}";
+		return result;
+	}
+
 	public String getSchemaTemplate(List<Resource> resources) {
 		String result = "schema {\n\tquery: Query\n\tmutation: Mutation\n}\n\n"
 				+ "type Query {\n";
@@ -130,7 +179,12 @@ public class Templates {
 			result += "\tcreate<resourceName" + i + ">(";
 			for(int j = 1; j < resources.get(i-1).getPredicate().size()+1; j++) {
 				if(resources.get(i-1).getPredicate().get(j-1).getObject().getTemplate() == null) {
-					result += "<predicateName" + i+j + ">: <datatype" + i+j + ">!, ";
+					if(resources.get(i-1).getPredicate().get(j-1).getObject().getRelation() == null) {
+						result += "<predicateName" + i+j + ">: <datatype" + i+j + ">!, ";
+					}
+					else {
+						result += "<predicateName" + i+j + ">Id: ID!, ";
+					}
 				}
 			}
 			result = result.substring(0, result.length()-2);
@@ -157,7 +211,12 @@ public class Templates {
 	private String getAttributesResource(Resource resource) {
 		String result = "\tprivate final String id;";
 		for(int i = 1; i < resource.getPredicate().size()+1; i++) {
-			result += "\n\tprivate final <datatype" + i + "> <predicateName" + i + ">;";
+			if(resource.getPredicate().get(i-1).getObject().getRelation() == null) {
+				result += "\n\tprivate final <datatype" + i + "> <predicateName" + i + ">;";
+			}
+			else {
+				result += "\n\tprivate final String <predicateName" + i + ">Id;";
+			}
 		}
 		return result + "\n";
 	}
@@ -168,10 +227,18 @@ public class Templates {
 		String constructor3 = "\t\tthis(null, ";
 		String constructor4 = "\n\t\tthis.id = id;";
 		for(int i = 1; i < resource.getPredicate().size()+1; i++) {
-			constructor1 += "<datatype" + i + "> <predicateName" + i + ">, ";
-			constructor2 += "<datatype" + i + "> <predicateName" + i + ">, ";
-			constructor3 += "<predicateName" + i + ">, ";
-			constructor4 += "\n\t\tthis.<predicateName" + i + "> = <predicateName" + i + ">;";
+			if(resource.getPredicate().get(i-1).getObject().getRelation() == null) {
+				constructor1 += "<datatype" + i + "> <predicateName" + i + ">, ";
+				constructor2 += "<datatype" + i + "> <predicateName" + i + ">, ";
+				constructor3 += "<predicateName" + i + ">, ";
+				constructor4 += "\n\t\tthis.<predicateName" + i + "> = <predicateName" + i + ">;";
+			}
+			else {
+				constructor1 += "String <predicateName" + i + ">Id, ";
+				constructor2 += "String <predicateName" + i + ">Id, ";
+				constructor3 += "<predicateName" + i + ">Id, ";
+				constructor4 += "\n\t\tthis.<predicateName" + i + ">Id = <predicateName" + i + ">Id;";
+			}
 		}
 		constructor1 = constructor1.substring(0, constructor1.length()-2);
 		constructor1 += ") {\n";
@@ -187,7 +254,12 @@ public class Templates {
 				"\t\treturn id;\r\n" + 
 				"\t}";
 		for(int i = 1; i < resource.getPredicate().size()+1; i++) {
-			getters += "\n\tpublic <datatype" + i + "> get<predicateGetterName" + i + ">() {\n\t\treturn <predicateName" + i + ">;\n\t}\n";
+			if(resource.getPredicate().get(i-1).getObject().getRelation() == null) {
+				getters += "\n\tpublic <datatype" + i + "> get<predicateGetterName" + i + ">() {\n\t\treturn <predicateName" + i + ">;\n\t}\n";
+			}
+			else {
+				getters += "\n\tpublic String get<predicateGetterName" + i + ">Id() {\n\t\treturn <predicateName" + i + ">Id;\n\t}\n";
+			}
 		}
 		return getters;
 	}
@@ -293,8 +365,14 @@ public class Templates {
 
 		for(int i = 1; i < resource.getPredicate().size()+1; i++) {
 			if(resource.getPredicate().get(i-1).getObject().getTemplate() == null) {
-				save += "\t\tdoc.append(\"<referenceName" + i + ">\", <resourceVarName>.get<predicateGetterName" + i + ">());\r\n";
-				constructor2 += "\t\t\tdoc.get<datatypeGetterName" + i + ">(\"<referenceName" + i + ">\"),\r\n";
+				if(resource.getPredicate().get(i-1).getObject().getRelation() == null) {
+					save += "\t\tdoc.append(\"<referenceName" + i + ">\", <resourceVarName>.get<predicateGetterName" + i + ">());\r\n";
+					constructor2 += "\t\t\tdoc.get<datatypeGetterName" + i + ">(\"<referenceName" + i + ">\"),\r\n";
+				}
+				else {
+					save += "\t\tdoc.append(\"<resourceVarNameRelation" + i + ">Id\", <resourceVarName>.get<predicateGetterName" + i + ">Id());\r\n";
+					constructor2 += "\t\t\tdoc.getString(\"<resourceVarNameRelation" + i + ">Id\"),\r\n";
+				}
 			}
 			else {
 				constructor2 += "\t\t\t\"" + getTemplateString(resource, resource.getPredicate().get(i-1)) + "\",\r\n";

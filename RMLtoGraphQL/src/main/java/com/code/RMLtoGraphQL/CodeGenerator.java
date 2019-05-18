@@ -37,9 +37,15 @@ public class CodeGenerator  {
 			File fileRepository = new File(routeFileRepository);
 			generateResourceClass(fileClass, resources.get(i));
 			generateResourceRepository(fileRepository, resources.get(i));
+
+			if(resources.get(i).isHaveRelation()) {
+				String routeFileResolver = routeCreate + "\\" + resources.get(i).getNameClass() + "Resolver.java";
+				File fileResolver = new File(routeFileResolver);
+				generateResolverClass(fileResolver, resources.get(i));
+			}
 		}
 	}
-	
+
 	private void generateEndpointClass(File file, RMLFile rmlFile) {
 		BufferedWriter bw = null;
 
@@ -50,6 +56,13 @@ public class CodeGenerator  {
 			endpointTemplate.add("end", ">");
 			endpointTemplate.add("sourceName", rmlFile.getSource());
 			for(int i = 1; i < rmlFile.getResources().size()+1; i++) {
+				if(rmlFile.getResources().get(i-1).isHaveRelation()) {
+					for(int j = 1; j < rmlFile.getResources().get(i-1).getPredicate().size()+1; j++) {
+						if(rmlFile.getResources().get(i-1).getPredicate().get(j-1).getObject().getRelation() != null) {
+							endpointTemplate.add("resourceVarNameRelation" + i+j, rmlFile.getResources().get(i-1).getPredicate().get(j-1).getObject().getRelation().toLowerCase());
+						}
+					}
+				}
 				endpointTemplate.add("resourceName" + i, rmlFile.getResources().get(i-1).getNameClass());
 				endpointTemplate.add("resourceVarName" + i, rmlFile.getResources().get(i-1).getNameClass().toLowerCase());
 				endpointTemplate.add("iteratorName" + i, rmlFile.getResources().get(i-1).getIterator());
@@ -134,6 +147,32 @@ public class CodeGenerator  {
 		}
 	}
 
+	private void generateResolverClass(File file, Resource resource) {
+		BufferedWriter bw = null;
+
+		try {
+			bw = new BufferedWriter(new FileWriter(file));
+			ST fileResolverTemplate = new ST(templates.getResolverTemplate(resource));
+			fileResolverTemplate.add("resourceName", resource.getNameClass());
+			fileResolverTemplate.add("resourceVarName", resource.getNameClass().toLowerCase());
+			fileResolverTemplate.add("init", "<");
+			fileResolverTemplate.add("end", ">");
+			for(int i = 1; i < resource.getPredicate().size()+1; i++) {
+				if(resource.getPredicate().get(i-1).getObject().getRelation() != null) {
+					fileResolverTemplate.add("resourceNameRelation" + i, resource.getPredicate().get(i-1).getObject().getRelation());
+					fileResolverTemplate.add("resourceVarNameRelation" + i, resource.getPredicate().get(i-1).getObject().getRelation().toLowerCase());
+				}
+			}
+			String fileResolverString = fileResolverTemplate.render();
+			bw.write(fileResolverString);
+			bw.close();
+
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+
 	private void generateResourceRepository(File file, Resource resource) {
 		BufferedWriter bw = null;
 
@@ -145,11 +184,19 @@ public class CodeGenerator  {
 			fileRepositoryTemplate.add("init", "<");
 			fileRepositoryTemplate.add("end", ">");
 			for(int i = 1; i < resource.getPredicate().size()+1; i++) {
-				fileRepositoryTemplate.add("referenceName" + i, resource.getPredicate().get(i-1).getObject().getReference());
-				fileRepositoryTemplate.add("datatypeGetterName" + i, Character.toUpperCase(resource.getPredicate().get(i-1).getObject().getDatatype().charAt(0)) + 
-						resource.getPredicate().get(i-1).getObject().getDatatype().substring(1,resource.getPredicate().get(i-1).getObject().getDatatype().length()));
-				fileRepositoryTemplate.add("predicateGetterName" + i, Character.toUpperCase(resource.getPredicate().get(i-1).getPredicate().charAt(0)) + 
-						resource.getPredicate().get(i-1).getPredicate().substring(1,resource.getPredicate().get(i-1).getPredicate().length()));
+				if(resource.getPredicate().get(i-1).getObject().getRelation() == null) {
+					fileRepositoryTemplate.add("referenceName" + i, resource.getPredicate().get(i-1).getObject().getReference());
+					fileRepositoryTemplate.add("datatypeGetterName" + i, Character.toUpperCase(resource.getPredicate().get(i-1).getObject().getDatatype().charAt(0)) + 
+							resource.getPredicate().get(i-1).getObject().getDatatype().substring(1,resource.getPredicate().get(i-1).getObject().getDatatype().length()));
+					fileRepositoryTemplate.add("predicateGetterName" + i, Character.toUpperCase(resource.getPredicate().get(i-1).getPredicate().charAt(0)) + 
+							resource.getPredicate().get(i-1).getPredicate().substring(1,resource.getPredicate().get(i-1).getPredicate().length()));
+				}
+				else {
+					fileRepositoryTemplate.add("resourceNameRelation" + i, resource.getPredicate().get(i-1).getObject().getRelation());
+					fileRepositoryTemplate.add("resourceVarNameRelation" + i, resource.getPredicate().get(i-1).getObject().getRelation().toLowerCase());
+					fileRepositoryTemplate.add("predicateGetterName" + i, Character.toUpperCase(resource.getPredicate().get(i-1).getPredicate().charAt(0)) + 
+							resource.getPredicate().get(i-1).getPredicate().substring(1,resource.getPredicate().get(i-1).getPredicate().length()));
+				}
 			} 
 			String fileRepositoryString = fileRepositoryTemplate.render();
 			bw.write(fileRepositoryString);

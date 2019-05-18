@@ -23,6 +23,7 @@ public class RMLReader {
 	private static final String iterator = "rml:iterator ";
 	private static final String template = "rr:template ";
 	private static final String subjectMap = "rr:subjectMap ";
+	private static final String parentTriplesMap = "rr:parentTriplesMap ";
 
 	public RMLReader() {
 		super();
@@ -38,8 +39,9 @@ public class RMLReader {
 		}
 		BufferedReader br = new BufferedReader(fr);
 		List<Predicate> predicates = new ArrayList<Predicate>();
-		String line, nameClassString = null, predicateString = null, referenceString = null, 
-				datatypeString = null, sourceString = null, iteratorString = null, templateString = null;
+		String line, nameClassString = null, predicateString = null, referenceString = null, datatypeString = null, 
+				sourceString = null, iteratorString = null, templateString = null, parentTriplesMapString = null, templateMainString = null;
+		boolean haveRelation = false;
 		Resource resource;
 		try {
 			while((line = br.readLine()) != null) {
@@ -58,9 +60,19 @@ public class RMLReader {
 							predicateString = getParameter(line, predicate);
 							predicates.add(new Predicate(predicateString, new ObjectMap()));
 						}
+						else if(line.contains(parentTriplesMap)) {
+							parentTriplesMapString = getParameter(line, parentTriplesMap);
+							predicates.get(predicates.size()-1).getObject().setRelation(parentTriplesMapString);
+							haveRelation = true;
+						}
 						else if(line.contains(template)) {
-							templateString = getParameter(line, template);
-							predicates.get(predicates.size()-1).getObject().setTemplate(templateString);;
+							if(predicates.size() == 0) {
+								// templateMainString = getParameter(line, template);
+							}
+							else {
+								templateString = getParameter(line, template);
+								predicates.get(predicates.size()-1).getObject().setTemplate(templateString);;
+							}
 						}
 						else if(line.contains(reference)) {
 							referenceString = getParameter(line, reference);
@@ -71,7 +83,7 @@ public class RMLReader {
 							predicates.get(predicates.size()-1).getObject().setDatatype(datatypeString);
 						}
 					}
-					
+
 					if(sourceString == null) {
 						JOptionPane.showMessageDialog(null, "No se ha encontrado definido el atributo rr:source en el fichero mapping", "ERROR CON EL FICHERO MAPPING", JOptionPane.ERROR_MESSAGE);
 						return null;
@@ -84,14 +96,17 @@ public class RMLReader {
 						JOptionPane.showMessageDialog(null, "No se ha encontrado definido el atributo rml:iterator en el fichero mapping", "ERROR CON EL FICHERO MAPPING", JOptionPane.ERROR_MESSAGE);
 						return null;
 					}
-					
+
 					for(int i = 0; i < predicates.size(); i++) {
+						if(predicates.get(i).getObject().getRelation() != null) {
+							predicates.get(i).getObject().setDatatype(predicates.get(i).getObject().getRelation());
+						}
 						if(predicates.get(i).getObject().getDatatype() == null) {
 							predicates.get(i).getObject().setDatatype("String");
 						}
 					}
-					
-					resource = new Resource(nameClassString, iteratorString, predicates);
+
+					resource = new Resource(nameClassString, templateMainString, iteratorString, predicates, haveRelation);
 					resources.add(resource);
 					predicates = new ArrayList<Predicate>();
 					nameClassString = null;
@@ -100,6 +115,9 @@ public class RMLReader {
 					datatypeString = null;
 					iteratorString = null;
 					templateString = null;
+					parentTriplesMapString = null;
+					templateMainString = null;
+					haveRelation = false;
 				}
 			}
 		} catch (IOException e) {
@@ -124,10 +142,11 @@ public class RMLReader {
 		if(line.charAt(0) == '"') {
 			line = line.substring(1, line.length()-1);
 		}
-		line = line.replace(":", "");
+		line = line.substring(line.indexOf(":") + 1);
+		// line = line.replace(":", "");
 		return line;
 	}
-	
+
 	private String getParameterIterator(String line, String typeParameter) {
 		line = line.trim();
 		line = line.replace("\t", "");
