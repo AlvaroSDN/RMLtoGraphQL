@@ -25,7 +25,7 @@ public class Templates {
 			arguments += "<resourceVarName" + i + ">Repository, "; 
 			if(resources.get(i-1).isHaveRelation()) {
 				resolvers += "\t\t\t\tnew <resourceName" + i + ">Resolver(";
-				
+
 				for(int j = 1; j < resources.get(i-1).getPredicate().size()+1; j++) {
 					if(resources.get(i-1).getPredicate().get(j-1).getObject().getRelation() != null) {
 						resolvers += "<resourceVarNameRelation" + i+j + ">Repository, ";
@@ -35,10 +35,16 @@ public class Templates {
 				resolvers += "),\r\n";
 			}
 		}
-		resolvers = resolvers.substring(0, resolvers.length()-4);
+		
 		arguments = arguments.substring(0, arguments.length()-2);
 		String arguments2 = arguments + "),\r\n";
 		arguments += "),\r\n";
+		if(!resolvers.isEmpty()) {
+			resolvers = resolvers.substring(0, resolvers.length()-4);
+		}
+		else {
+			arguments2 = arguments2.substring(0, arguments2.length()-4);
+		}
 		String build = "\tprivate static GraphQLSchema buildSchema() {\r\n" + 
 				"\t\treturn SchemaParser.newParser()\r\n" + 
 				"\t\t\t.file(\"schema.graphqls\")\r\n" + 

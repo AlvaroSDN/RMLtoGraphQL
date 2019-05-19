@@ -31,6 +31,7 @@ public class ProjectGenerator {
 		System.out.println(routeCreate);
 		System.out.println(routeServer);
 		
+		deleteDirectory(new File(routeCreate));
 		copyDirectory(new File(routeServer), new File(routeCreate));
 		
 		String routeSchema = routeCreate + "\\src\\main\\resources";
@@ -60,11 +61,11 @@ public class ProjectGenerator {
 			InputStream in = new FileInputStream(f1);
 			OutputStream out = new FileOutputStream(f2);
 
-			byte[] buf = new byte[1024];
+			byte[] buffer = new byte[1024];
 			int len;
 
-			while ((len = in.read(buf)) > 0) {
-				out.write(buf, 0, len);
+			while ((len = in.read(buffer)) > 0) {
+				out.write(buffer, 0, len);
 			}
 
 			in.close();
@@ -73,5 +74,16 @@ public class ProjectGenerator {
 		} catch (IOException ioe){
 			ioe.printStackTrace();
 		}
+	}
+	
+	public static void deleteDirectory(File d1) {
+		File[] files = d1.listFiles();
+		 
+		 for (int i = 0; i < files.length; i++) {
+			 if (files[i].isDirectory()) {
+				  deleteDirectory(files[i]);
+				}
+				files[i].delete();
+		 }
 	}
 }

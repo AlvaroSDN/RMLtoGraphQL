@@ -42,7 +42,7 @@
   ];
   
   rr:predicateObjectMap [ 
-    rr:predicate foaf:fullName; 
+    rr:predicate schema:fullName; 
     rr:objectMap [
       rr:template "{apellido}, {nombre}";
     ]
