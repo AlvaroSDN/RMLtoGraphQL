@@ -57,9 +57,9 @@ public class CodeGenerator  {
 			endpointTemplate.add("sourceName", rmlFile.getSource());
 			for(int i = 1; i < rmlFile.getResources().size()+1; i++) {
 				if(rmlFile.getResources().get(i-1).isHaveRelation()) {
-					for(int j = 1; j < rmlFile.getResources().get(i-1).getPredicate().size()+1; j++) {
-						if(rmlFile.getResources().get(i-1).getPredicate().get(j-1).getObject().getRelation() != null) {
-							endpointTemplate.add("resourceVarNameRelation" + i+j, rmlFile.getResources().get(i-1).getPredicate().get(j-1).getObject().getRelation().toLowerCase());
+					for(int j = 1; j < rmlFile.getResources().get(i-1).getPredicates().size()+1; j++) {
+						if(rmlFile.getResources().get(i-1).getPredicates().get(j-1).getObject().getRelation() != null) {
+							endpointTemplate.add("resourceVarNameRelation" + i+j, rmlFile.getResources().get(i-1).getPredicates().get(j-1).getObject().getRelation().toLowerCase());
 						}
 					}
 				}
@@ -109,9 +109,16 @@ public class CodeGenerator  {
 			for(int i = 1; i < resources.size()+1; i++) {
 				mutationTemplate.add("resourceName" + i, resources.get(i-1).getNameClass());
 				mutationTemplate.add("resourceVarName" + i, resources.get(i-1).getNameClass().toLowerCase());
-				for(int j = 1; j < resources.get(i-1).getPredicate().size()+1; j++) {
-					mutationTemplate.add("predicateName" + i+j, resources.get(i-1).getPredicate().get(j-1).getPredicate());
-					mutationTemplate.add("datatype" + i+j, resources.get(i-1).getPredicate().get(j-1).getObject().getDatatype());
+				for(int j = 1; j < resources.get(i-1).getPredicates().size()+1; j++) {
+					if(resources.get(i-1).getPredicates().get(j-1).getObject().getRelation() == null) {
+						mutationTemplate.add("predicateName" + i+j, resources.get(i-1).getPredicates().get(j-1).getPredicate());
+						mutationTemplate.add("datatype" + i+j, resources.get(i-1).getPredicates().get(j-1).getObject().getDatatype());
+					}
+					else {
+						mutationTemplate.add("predicateName" + i+j, resources.get(i-1).getPredicates().get(j-1).getPredicate());
+						mutationTemplate.add("datatype" + i+j, resources.get(i-1).getPredicates().get(j-1).getObject().getRelation());
+						mutationTemplate.add("childName" + i+j, resources.get(i-1).getPredicates().get(j-1).getObject().getChild());
+					}
 				}
 			}
 			String mutationString = mutationTemplate.render();
@@ -131,11 +138,22 @@ public class CodeGenerator  {
 			bw = new BufferedWriter(new FileWriter(file));
 			ST fileClassTemplate = new ST(templates.getResourceClassTemplate(resource));
 			fileClassTemplate.add("resourceName", resource.getNameClass());
-			for(int i = 1; i < resource.getPredicate().size()+1; i++) {
-				fileClassTemplate.add("predicateName" + i, resource.getPredicate().get(i-1).getPredicate());
-				fileClassTemplate.add("predicateGetterName" + i, Character.toUpperCase(resource.getPredicate().get(i-1).getPredicate().charAt(0)) + 
-						resource.getPredicate().get(i-1).getPredicate().substring(1,resource.getPredicate().get(i-1).getPredicate().length()));
-				fileClassTemplate.add("datatype" + i, resource.getPredicate().get(i-1).getObject().getDatatype());
+			for(int i = 1; i < resource.getPredicates().size()+1; i++) {
+				if(resource.getPredicates().get(i-1).getObject().getRelation() == null) {
+					fileClassTemplate.add("predicateName" + i, resource.getPredicates().get(i-1).getPredicate());
+					fileClassTemplate.add("predicateGetterName" + i, Character.toUpperCase(resource.getPredicates().get(i-1).getPredicate().charAt(0)) + 
+							resource.getPredicates().get(i-1).getPredicate().substring(1,resource.getPredicates().get(i-1).getPredicate().length()));
+					fileClassTemplate.add("datatype" + i, resource.getPredicates().get(i-1).getObject().getDatatype());
+				}
+				else {
+					fileClassTemplate.add("predicateName" + i, resource.getPredicates().get(i-1).getPredicate());
+					fileClassTemplate.add("predicateGetterName" + i, Character.toUpperCase(resource.getPredicates().get(i-1).getPredicate().charAt(0)) + 
+							resource.getPredicates().get(i-1).getPredicate().substring(1,resource.getPredicates().get(i-1).getPredicate().length()));
+					fileClassTemplate.add("datatype" + i, resource.getPredicates().get(i-1).getObject().getDatatype());
+					fileClassTemplate.add("childName" + i, resource.getPredicates().get(i-1).getObject().getChild());
+					fileClassTemplate.add("childGetterName" + i, Character.toUpperCase(resource.getPredicates().get(i-1).getObject().getChild().charAt(0)) + 
+							resource.getPredicates().get(i-1).getObject().getChild().substring(1,resource.getPredicates().get(i-1).getObject().getChild().length()));
+				}
 			}
 			String fileClassString = fileClassTemplate.render();
 			bw.write(fileClassString);
@@ -157,10 +175,12 @@ public class CodeGenerator  {
 			fileResolverTemplate.add("resourceVarName", resource.getNameClass().toLowerCase());
 			fileResolverTemplate.add("init", "<");
 			fileResolverTemplate.add("end", ">");
-			for(int i = 1; i < resource.getPredicate().size()+1; i++) {
-				if(resource.getPredicate().get(i-1).getObject().getRelation() != null) {
-					fileResolverTemplate.add("resourceNameRelation" + i, resource.getPredicate().get(i-1).getObject().getRelation());
-					fileResolverTemplate.add("resourceVarNameRelation" + i, resource.getPredicate().get(i-1).getObject().getRelation().toLowerCase());
+			for(int i = 1; i < resource.getPredicates().size()+1; i++) {
+				if(resource.getPredicates().get(i-1).getObject().getRelation() != null) {
+					fileResolverTemplate.add("resourceNameRelation" + i, resource.getPredicates().get(i-1).getObject().getRelation());
+					fileResolverTemplate.add("resourceVarNameRelation" + i, resource.getPredicates().get(i-1).getObject().getRelation().toLowerCase());
+					fileResolverTemplate.add("childName" + i, Character.toUpperCase(resource.getPredicates().get(i-1).getObject().getChild().charAt(0)) + 
+							resource.getPredicates().get(i-1).getObject().getChild().substring(1,resource.getPredicates().get(i-1).getObject().getChild().length()));
 				}
 			}
 			String fileResolverString = fileResolverTemplate.render();
@@ -183,19 +203,20 @@ public class CodeGenerator  {
 			fileRepositoryTemplate.add("resourceVarName", resource.getNameClass().toLowerCase());
 			fileRepositoryTemplate.add("init", "<");
 			fileRepositoryTemplate.add("end", ">");
-			for(int i = 1; i < resource.getPredicate().size()+1; i++) {
-				if(resource.getPredicate().get(i-1).getObject().getRelation() == null) {
-					fileRepositoryTemplate.add("referenceName" + i, resource.getPredicate().get(i-1).getObject().getReference());
-					fileRepositoryTemplate.add("datatypeGetterName" + i, Character.toUpperCase(resource.getPredicate().get(i-1).getObject().getDatatype().charAt(0)) + 
-							resource.getPredicate().get(i-1).getObject().getDatatype().substring(1,resource.getPredicate().get(i-1).getObject().getDatatype().length()));
-					fileRepositoryTemplate.add("predicateGetterName" + i, Character.toUpperCase(resource.getPredicate().get(i-1).getPredicate().charAt(0)) + 
-							resource.getPredicate().get(i-1).getPredicate().substring(1,resource.getPredicate().get(i-1).getPredicate().length()));
+			for(int i = 1; i < resource.getPredicates().size()+1; i++) {
+				if(resource.getPredicates().get(i-1).getObject().getRelation() == null) {
+					fileRepositoryTemplate.add("referenceName" + i, resource.getPredicates().get(i-1).getObject().getReference());
+					fileRepositoryTemplate.add("datatypeGetterName" + i, Character.toUpperCase(resource.getPredicates().get(i-1).getObject().getDatatype().charAt(0)) + 
+							resource.getPredicates().get(i-1).getObject().getDatatype().substring(1,resource.getPredicates().get(i-1).getObject().getDatatype().length()));
+					fileRepositoryTemplate.add("predicateGetterName" + i, Character.toUpperCase(resource.getPredicates().get(i-1).getPredicate().charAt(0)) + 
+							resource.getPredicates().get(i-1).getPredicate().substring(1,resource.getPredicates().get(i-1).getPredicate().length()));
 				}
 				else {
-					fileRepositoryTemplate.add("resourceNameRelation" + i, resource.getPredicate().get(i-1).getObject().getRelation());
-					fileRepositoryTemplate.add("resourceVarNameRelation" + i, resource.getPredicate().get(i-1).getObject().getRelation().toLowerCase());
-					fileRepositoryTemplate.add("predicateGetterName" + i, Character.toUpperCase(resource.getPredicate().get(i-1).getPredicate().charAt(0)) + 
-							resource.getPredicate().get(i-1).getPredicate().substring(1,resource.getPredicate().get(i-1).getPredicate().length()));
+					fileRepositoryTemplate.add("resourceNameRelation" + i, resource.getPredicates().get(i-1).getObject().getRelation());
+					fileRepositoryTemplate.add("resourceVarNameRelation" + i, resource.getPredicates().get(i-1).getObject().getRelation().toLowerCase());
+					fileRepositoryTemplate.add("childName" + i, resource.getPredicates().get(i-1).getObject().getChild());
+					fileRepositoryTemplate.add("childGetterName" + i, Character.toUpperCase(resource.getPredicates().get(i-1).getObject().getChild().charAt(0)) + 
+							resource.getPredicates().get(i-1).getObject().getChild().substring(1,resource.getPredicates().get(i-1).getObject().getChild().length()));
 				}
 			} 
 			String fileRepositoryString = fileRepositoryTemplate.render();

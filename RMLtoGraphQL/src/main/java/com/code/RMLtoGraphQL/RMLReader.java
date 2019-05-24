@@ -12,7 +12,6 @@ import javax.annotation.Resources;
 import javax.swing.JOptionPane;
 
 public class RMLReader {
-	private static final String triplesMap = "rr:TriplesMap";
 	private static final String nameClass = "rr:class ";
 	private static final String predicateObjectMap = "rr:predicateObjectMap";
 	private static final String predicate = "rr:predicate ";
@@ -24,6 +23,8 @@ public class RMLReader {
 	private static final String template = "rr:template ";
 	private static final String subjectMap = "rr:subjectMap ";
 	private static final String parentTriplesMap = "rr:parentTriplesMap ";
+	private static final String joinConditionChild = "rr:child ";
+	private static final String joinConditionParent = "rr:parent ";
 
 	public RMLReader() {
 		super();
@@ -39,13 +40,15 @@ public class RMLReader {
 		}
 		BufferedReader br = new BufferedReader(fr);
 		List<Predicate> predicates = new ArrayList<Predicate>();
-		String line, nameClassString = null, predicateString = null, referenceString = null, datatypeString = null, 
-				sourceString = null, iteratorString = null, templateString = null, parentTriplesMapString = null, templateMainString = null;
+		String line, nameClassString = null,  predicateString = null, referenceString = null, datatypeString = null, 
+				sourceString = null, iteratorString = null, templateString = null, parentTriplesMapString = null, templateMainString = null, 
+				triplesMapNameString = null, joinConditionChildString = null, joinConditionParentString = null;
 		boolean haveRelation = false;
 		Resource resource;
 		try {
 			while((line = br.readLine()) != null) {
-				if(line.contains(triplesMap)) {
+				if(!line.contains("@") && line.contains("<")) {
+					triplesMapNameString = getTriplesMapName(line);
 					while(!(line = br.readLine()).contains("].")) {
 						if(line.contains(source)) {
 							sourceString = getParameter(line, source);
@@ -61,7 +64,7 @@ public class RMLReader {
 							predicates.add(new Predicate(predicateString, new ObjectMap()));
 						}
 						else if(line.contains(parentTriplesMap)) {
-							parentTriplesMapString = getParameter(line, parentTriplesMap);
+							parentTriplesMapString = getParameterParentTriplesMap(line, parentTriplesMap);
 							predicates.get(predicates.size()-1).getObject().setRelation(parentTriplesMapString);
 							haveRelation = true;
 						}
@@ -81,6 +84,14 @@ public class RMLReader {
 						else if(line.contains(datatype)) {
 							datatypeString = getParameter(line, datatype);
 							predicates.get(predicates.size()-1).getObject().setDatatype(datatypeString);
+						}
+						else if(line.contains(joinConditionChild)) {
+							joinConditionChildString = getParameter(line, joinConditionChild);
+							predicates.get(predicates.size()-1).getObject().setChild(joinConditionChildString);;
+						}
+						else if(line.contains(joinConditionParent)) {
+							joinConditionParentString = getParameter(line, joinConditionParent);
+							predicates.get(predicates.size()-1).getObject().setParent(joinConditionParentString);;
 						}
 					}
 
@@ -106,7 +117,7 @@ public class RMLReader {
 						}
 					}
 
-					resource = new Resource(nameClassString, templateMainString, iteratorString, predicates, haveRelation);
+					resource = new Resource(triplesMapNameString, nameClassString, templateMainString, iteratorString, predicates, haveRelation);
 					resources.add(resource);
 					predicates = new ArrayList<Predicate>();
 					nameClassString = null;
@@ -116,6 +127,9 @@ public class RMLReader {
 					iteratorString = null;
 					templateString = null;
 					parentTriplesMapString = null;
+					triplesMapNameString = null;
+					joinConditionChildString = null;
+					joinConditionParentString = null;
 					templateMainString = null;
 					haveRelation = false;
 				}
@@ -123,6 +137,9 @@ public class RMLReader {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+		
+		seeResources(resources);
+		resources = triplesMapToClass(resources);
 		System.out.println(sourceString);
 		seeResources(resources);
 		return new RMLFile(resources, sourceString);
@@ -165,6 +182,49 @@ public class RMLReader {
 		int index2 = line.indexOf("[");
 		line = line.substring(index, index2);
 		return line;
+	}
+	
+	private String getParameterParentTriplesMap(String line, String typeParameter) {
+		line = line.trim();
+		line = line.replace("\t", "");
+		int index = line.indexOf(typeParameter);
+		line = line.substring(index);
+		index = line.indexOf(" ") + 1;
+		line = line.substring(index);
+		if(line.charAt(line.length()-1) == ';' || line.charAt(line.length()-1) == ','
+				|| line.charAt(line.length()-1) == ']') {
+			line = line.substring(0, line.length()-1);
+		}
+		
+		line = line.substring(1, line.length()-1);
+		return line;
+	}
+	
+	private String getTriplesMapName(String line) {
+		line = line.trim();
+		line = line.replace("\t", "");
+		int index1 = line.indexOf("<") + 1;
+		int index2 = line.lastIndexOf(">");
+		line = line.substring(index1, index2);
+		return line;
+	}
+	
+	private List<Resource> triplesMapToClass(List<Resource> resources) {
+		for(int i = 0; i < resources.size(); i++) {
+			if(resources.get(i).isHaveRelation()) {
+				for(int j = 0; j < resources.get(i).getPredicates().size(); j++) {
+					if(resources.get(i).getPredicates().get(j).getObject().getRelation() != null ) {
+						for(int k = 0; k < resources.size(); k++) {
+							if(resources.get(i).getPredicates().get(j).getObject().getRelation().equals(resources.get(k).getTriplesMapName())) {
+								resources.get(i).getPredicates().get(j).getObject().setRelation(resources.get(k).getNameClass());
+							}
+						}
+					}
+				}
+			}
+		}
+		
+		return resources;
 	}
 
 	private void seeResources(List<Resource> resources) {

@@ -26,8 +26,8 @@ public class Templates {
 			if(resources.get(i-1).isHaveRelation()) {
 				resolvers += "\t\t\t\tnew <resourceName" + i + ">Resolver(";
 
-				for(int j = 1; j < resources.get(i-1).getPredicate().size()+1; j++) {
-					if(resources.get(i-1).getPredicate().get(j-1).getObject().getRelation() != null) {
+				for(int j = 1; j < resources.get(i-1).getPredicates().size()+1; j++) {
+					if(resources.get(i-1).getPredicates().get(j-1).getObject().getRelation() != null) {
 						resolvers += "<resourceVarNameRelation" + i+j + ">Repository, ";
 					}
 				}
@@ -112,15 +112,15 @@ public class Templates {
 
 			arguments1 = "(";
 			arguments2 = "(";
-			for(int j = 1; j < resources.get(i-1).getPredicate().size()+1; j++) {
-				if(resources.get(i-1).getPredicate().get(j-1).getObject().getTemplate() == null) {
-					if(resources.get(i-1).getPredicate().get(j-1).getObject().getRelation() == null) {
+			for(int j = 1; j < resources.get(i-1).getPredicates().size()+1; j++) {
+				if(resources.get(i-1).getPredicates().get(j-1).getObject().getTemplate() == null) {
+					if(resources.get(i-1).getPredicates().get(j-1).getObject().getRelation() == null) {
 						arguments1 += "<datatype" + i+j + "> <predicateName" + i+j + ">, ";
 						arguments2 += "<predicateName" + i+j + ">, ";
 					}
 					else {
-						arguments1 += "String <predicateName" + i+j + ">Id, ";
-						arguments2 += "<predicateName" + i+j + ">Id, ";
+						arguments1 += "String <childName" + i+j + ">, ";
+						arguments2 += "<childName" + i+j + ">, ";
 					}
 				}
 				else {
@@ -154,14 +154,14 @@ public class Templates {
 		String constructor2 = "";
 		String resolvers = "";
 
-		for(int i = 1; i < resource.getPredicate().size()+1; i++) {
-			if(resource.getPredicate().get(i-1).getObject().getRelation() != null) {
+		for(int i = 1; i < resource.getPredicates().size()+1; i++) {
+			if(resource.getPredicates().get(i-1).getObject().getRelation() != null) {
 				variables += "\tprivate final <resourceNameRelation" + i + ">Repository <resourceVarNameRelation" + i + ">Repository;\r\n";
 				constructor += "<resourceNameRelation" + i + ">Repository <resourceVarNameRelation" + i + ">Repository,\r\n";
 				constructor2 += "\t\tthis.<resourceVarNameRelation" + i + ">Repository = <resourceVarNameRelation" + i + ">Repository;\r\n";
 
 				resolvers += "\tpublic <resourceNameRelation" + i + "> <resourceVarNameRelation" + i + ">(<resourceName> <resourceVarName>) {\r\n" +
-						"\t\treturn <resourceVarNameRelation" + i + ">Repository.findById(<resourceVarName>.get<resourceNameRelation" + i + ">Id());\r\n" + 
+						"\t\treturn <resourceVarNameRelation" + i + ">Repository.findById(<resourceVarName>.get<childName" + i + ">());\r\n" + 
 						"\t}\r\n\n";
 			}
 		}
@@ -183,13 +183,13 @@ public class Templates {
 
 		for(int i = 1; i < resources.size()+1; i++) {
 			result += "\tcreate<resourceName" + i + ">(";
-			for(int j = 1; j < resources.get(i-1).getPredicate().size()+1; j++) {
-				if(resources.get(i-1).getPredicate().get(j-1).getObject().getTemplate() == null) {
-					if(resources.get(i-1).getPredicate().get(j-1).getObject().getRelation() == null) {
+			for(int j = 1; j < resources.get(i-1).getPredicates().size()+1; j++) {
+				if(resources.get(i-1).getPredicates().get(j-1).getObject().getTemplate() == null) {
+					if(resources.get(i-1).getPredicates().get(j-1).getObject().getRelation() == null) {
 						result += "<predicateName" + i+j + ">: <datatype" + i+j + ">!, ";
 					}
 					else {
-						result += "<predicateName" + i+j + ">Id: ID!, ";
+						result += "<childName" + i+j + ">: ID!, ";
 					}
 				}
 			}
@@ -200,7 +200,7 @@ public class Templates {
 
 		for(int i = 1; i < resources.size()+1; i++) {
 			result += "type <resourceName" + i + "> {\n\tid: ID!\n";
-			for(int j = 1; j < resources.get(i-1).getPredicate().size()+1; j++) {
+			for(int j = 1; j < resources.get(i-1).getPredicates().size()+1; j++) {
 				result += "\t<predicateName" + i+j + ">: <datatype" + i+j + ">!\n";
 			}
 			result += "}\n\n";
@@ -216,12 +216,12 @@ public class Templates {
 
 	private String getAttributesResource(Resource resource) {
 		String result = "\tprivate final String id;";
-		for(int i = 1; i < resource.getPredicate().size()+1; i++) {
-			if(resource.getPredicate().get(i-1).getObject().getRelation() == null) {
+		for(int i = 1; i < resource.getPredicates().size()+1; i++) {
+			if(resource.getPredicates().get(i-1).getObject().getRelation() == null) {
 				result += "\n\tprivate final <datatype" + i + "> <predicateName" + i + ">;";
 			}
 			else {
-				result += "\n\tprivate final String <predicateName" + i + ">Id;";
+				result += "\n\tprivate final String <childName" + i + ">;";
 			}
 		}
 		return result + "\n";
@@ -232,18 +232,18 @@ public class Templates {
 		String constructor2 = "\tpublic <resourceName>(String id, ";
 		String constructor3 = "\t\tthis(null, ";
 		String constructor4 = "\n\t\tthis.id = id;";
-		for(int i = 1; i < resource.getPredicate().size()+1; i++) {
-			if(resource.getPredicate().get(i-1).getObject().getRelation() == null) {
+		for(int i = 1; i < resource.getPredicates().size()+1; i++) {
+			if(resource.getPredicates().get(i-1).getObject().getRelation() == null) {
 				constructor1 += "<datatype" + i + "> <predicateName" + i + ">, ";
 				constructor2 += "<datatype" + i + "> <predicateName" + i + ">, ";
 				constructor3 += "<predicateName" + i + ">, ";
 				constructor4 += "\n\t\tthis.<predicateName" + i + "> = <predicateName" + i + ">;";
 			}
 			else {
-				constructor1 += "String <predicateName" + i + ">Id, ";
-				constructor2 += "String <predicateName" + i + ">Id, ";
-				constructor3 += "<predicateName" + i + ">Id, ";
-				constructor4 += "\n\t\tthis.<predicateName" + i + ">Id = <predicateName" + i + ">Id;";
+				constructor1 += "String <childName" + i + ">, ";
+				constructor2 += "String <childName" + i + ">, ";
+				constructor3 += "<childName" + i + ">, ";
+				constructor4 += "\n\t\tthis.<childName" + i + "> = <childName" + i + ">;";
 			}
 		}
 		constructor1 = constructor1.substring(0, constructor1.length()-2);
@@ -259,12 +259,12 @@ public class Templates {
 		String getters = "\n\tpublic String getId() {\r\n" + 
 				"\t\treturn id;\r\n" + 
 				"\t}";
-		for(int i = 1; i < resource.getPredicate().size()+1; i++) {
-			if(resource.getPredicate().get(i-1).getObject().getRelation() == null) {
+		for(int i = 1; i < resource.getPredicates().size()+1; i++) {
+			if(resource.getPredicates().get(i-1).getObject().getRelation() == null) {
 				getters += "\n\tpublic <datatype" + i + "> get<predicateGetterName" + i + ">() {\n\t\treturn <predicateName" + i + ">;\n\t}\n";
 			}
 			else {
-				getters += "\n\tpublic String get<predicateGetterName" + i + ">Id() {\n\t\treturn <predicateName" + i + ">Id;\n\t}\n";
+				getters += "\n\tpublic String get<childGetterName" + i + ">() {\n\t\treturn <childName" + i + ">;\n\t}\n";
 			}
 		}
 		return getters;
@@ -369,19 +369,19 @@ public class Templates {
 		String constructor2	= "\t\treturn new <resourceName>(\r\n" + 
 				"\t\t\tdoc.get(\"_id\").toString(),\r\n";
 
-		for(int i = 1; i < resource.getPredicate().size()+1; i++) {
-			if(resource.getPredicate().get(i-1).getObject().getTemplate() == null) {
-				if(resource.getPredicate().get(i-1).getObject().getRelation() == null) {
+		for(int i = 1; i < resource.getPredicates().size()+1; i++) {
+			if(resource.getPredicates().get(i-1).getObject().getTemplate() == null) {
+				if(resource.getPredicates().get(i-1).getObject().getRelation() == null) {
 					save += "\t\tdoc.append(\"<referenceName" + i + ">\", <resourceVarName>.get<predicateGetterName" + i + ">());\r\n";
 					constructor2 += "\t\t\tdoc.get<datatypeGetterName" + i + ">(\"<referenceName" + i + ">\"),\r\n";
 				}
 				else {
-					save += "\t\tdoc.append(\"<resourceVarNameRelation" + i + ">Id\", <resourceVarName>.get<predicateGetterName" + i + ">Id());\r\n";
-					constructor2 += "\t\t\tdoc.getString(\"<resourceVarNameRelation" + i + ">Id\"),\r\n";
+					save += "\t\tdoc.append(\"<childName" + i + ">\", <resourceVarName>.get<childGetterName" + i + ">());\r\n";
+					constructor2 += "\t\t\tdoc.getString(\"<childName" + i + ">\"),\r\n";
 				}
 			}
 			else {
-				constructor2 += "\t\t\t\"" + getTemplateString(resource, resource.getPredicate().get(i-1)) + "\",\r\n";
+				constructor2 += "\t\t\t\"" + getTemplateString(resource, resource.getPredicates().get(i-1)) + "\",\r\n";
 			}
 		}
 		constructor2 = constructor2.substring(0, constructor2.length()-3);
@@ -396,9 +396,9 @@ public class Templates {
 
 	private String getTemplateString(Resource resource, Predicate predicate) {
 		String template = predicate.getObject().getTemplate();
-		for(int i = 1; i < resource.getPredicate().size()+1; i++) {
-			if(resource.getPredicate().get(i-1).getObject().getReference() != null && template.contains(resource.getPredicate().get(i-1).getObject().getReference())) {
-				template = template.replaceAll(resource.getPredicate().get(i-1).getObject().getReference(), "\" + doc.getString(\"<referenceName" + i + ">\") + \"");
+		for(int i = 1; i < resource.getPredicates().size()+1; i++) {
+			if(resource.getPredicates().get(i-1).getObject().getReference() != null && template.contains(resource.getPredicates().get(i-1).getObject().getReference())) {
+				template = template.replaceAll(resource.getPredicates().get(i-1).getObject().getReference(), "\" + doc.getString(\"<referenceName" + i + ">\") + \"");
 			}
 		}
 
