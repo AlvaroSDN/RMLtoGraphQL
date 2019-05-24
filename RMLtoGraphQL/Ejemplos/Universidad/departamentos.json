@@ -1,0 +1,3 @@
+{"_id":{"$oid":"5ce81c910a67be31cc693ee1"},"nombre":"Departamento de Inteligencia Artificial","ubicacion":"Bloque_2","web":"http://www.dia.fi.upm.es/es"}
+{"_id":{"$oid":"5ce823ce0a67be24f0e947df"},"nombre":"Departamento de Lenguajes y Sistemas Informáticos e Ingeniería de Software","ubicacion":"Bloque_4","web":"http://www.dlsiis.fi.upm.es/"}
+{"_id":{"$oid":"5ce825b10a67be24f0e947e4"},"nombre":"Departamento de Arquitectura y Tecnología de Sistemas Informáticos","ubicacion":"Bloque_4","web":"http://www.datsi.fi.upm.es/"}

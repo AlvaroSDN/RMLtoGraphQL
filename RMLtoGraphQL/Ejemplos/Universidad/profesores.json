@@ -1,0 +1,15 @@
+{"_id":{"$oid":"5ce81dd10a67be31cc693ee2"},"departmentId":"5ce81c910a67be31cc693ee1","despacho":"2205","nombre":"Josefa Z.","apellidos":"Hernández Diego","correo_electronico":"phernan@fi.upm.es"}
+{"_id":{"$oid":"5ce81fa30a67be15e8e050db"},"departmentId":"5ce81c910a67be31cc693ee1","despacho":"2105","nombre":"Oscar","apellidos":"Corcho García","correo_electronico":"ocorcho@fi.upm.es"}
+{"_id":{"$oid":"5ce822020a67be15e8e050dc"},"departmentId":"5ce81c910a67be31cc693ee1","despacho":"2102","nombre":"Víctor","apellidos":"Maojo García","correo_electronico":"vmaojo@fi.upm.es"}
+{"_id":{"$oid":"5ce8222c0a67be15e8e050dd"},"departmentId":"5ce81c910a67be31cc693ee1","despacho":"2109","nombre":"Daniel","apellidos":"Manrique Gamo","correo_electronico":"dmanrique@fi.upm.es"}
+{"_id":{"$oid":"5ce8224f0a67be15e8e050de"},"departmentId":"5ce81c910a67be31cc693ee1","despacho":"2201","nombre":"Mª del Carmen","apellidos":"Suárez de Figueroa Baonza","correo_electronico":"mcsuarez@fi.upm.es"}
+{"_id":{"$oid":"5ce822680a67be15e8e050df"},"departmentId":"5ce81c910a67be31cc693ee1","despacho":"2110","nombre":"Antonio","apellidos":"Jiménez Martín","correo_electronico":"ajimenez@fi.upm.es"}
+{"_id":{"$oid":"5ce824620a67be24f0e947e0"},"departmentId":"5ce823ce0a67be24f0e947df","despacho":"1005","nombre":"Jose Luis","apellidos":"Fuertes Castro","correo_electronico":"jfuertes@fi.upm.es"}
+{"_id":{"$oid":"5ce824c00a67be24f0e947e1"},"departmentId":"5ce823ce0a67be24f0e947df","despacho":"4301","nombre":"Aurora","apellidos":"Pérez Pérez","correo_electronico":"aurora@fi.upm.es"}
+{"_id":{"$oid":"5ce824e60a67be24f0e947e2"},"departmentId":"5ce823ce0a67be24f0e947df","despacho":"2307","nombre":"Raúl","apellidos":"Alonso Calvo","correo_electronico":"ralonso@fi.upm.es"}
+{"_id":{"$oid":"5ce825090a67be24f0e947e3"},"departmentId":"5ce823ce0a67be24f0e947df","despacho":"4311","nombre":"Miguel","apellidos":"Jiménez Gañán","correo_electronico":"mjimenez@fi.upm.es"}
+{"_id":{"$oid":"5ce826470a67be24f0e947e5"},"departmentId":"5ce825b10a67be24f0e947e4","despacho":"4209","nombre":"Pedro","apellidos":"Gómez Vilda","correo_electronico":"pedro@pino.datsi.fi.upm.es"}
+{"_id":{"$oid":"5ce8266d0a67be24f0e947e6"},"departmentId":"5ce825b10a67be24f0e947e4","despacho":"4108","nombre":"Antonio","apellidos":"Pérez Ambite","correo_electronico":"aperez@fi.upm.es"}
+{"_id":{"$oid":"5ce8268e0a67be24f0e947e7"},"departmentId":"5ce825b10a67be24f0e947e4","despacho":"4204","nombre":"Víctor","apellidos":"Robles Forcada","correo_electronico":"vrobles@fi.upm.es"}
+{"_id":{"$oid":"5ce826ab0a67be24f0e947e8"},"departmentId":"5ce825b10a67be24f0e947e4","despacho":"4202","nombre":"Juan","apellidos":"Zamorano Flores","correo_electronico":"jzamora@fi.upm.es"}
+{"_id":{"$oid":"5ce826d10a67be24f0e947e9"},"departmentId":"5ce825b10a67be24f0e947e4","despacho":"4107","nombre":"Santiago","apellidos":"Rodríguez de la Fuente","correo_electronico":"srodri@fi.upm.es"}
