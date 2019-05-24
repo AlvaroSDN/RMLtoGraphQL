@@ -81,8 +81,8 @@ public class Templates {
 			variables += "\tprivate final <resourceName" + i + ">Repository <resourceVarName" + i + ">Repository;\r\n";
 			constructor += "<resourceName" + i + ">Repository <resourceVarName" + i + ">Repository,\r\n";
 			constructor2 += "\t\tthis.<resourceVarName" + i + ">Repository = <resourceVarName" + i + ">Repository;\r\n";
-			queries += "\tpublic List<init><resourceName" + i + "><end> all<resourceName" + i + ">s() {\r\n" + 
-					"\t\treturn <resourceVarName" + i + ">Repository.getAll<resourceName" + i + ">s();\r\n" + 
+			queries += "\tpublic List<init><resourceName" + i + "><end> all<resourceName" + i + ">s(Number skip, Number first) {\r\n" + 
+					"\t\treturn <resourceVarName" + i + ">Repository.getAll<resourceName" + i + ">s(skip.intValue(), first.intValue());\r\n" + 
 					"\t}\r\n\n";
 		}
 		constructor = constructor.substring(0, constructor.length()-3);
@@ -177,7 +177,7 @@ public class Templates {
 				+ "type Query {\n";
 
 		for(int i = 1; i < resources.size()+1; i++) {
-			result += "\tall<resourceName" + i + ">s: [<resourceName" + i + ">]\n";
+			result += "\tall<resourceName" + i + ">s(skip: Int = 0, first: Int = 0): [<resourceName" + i + ">]\n";
 		}
 		result += "}\n\ntype Mutation {\n";
 
@@ -340,9 +340,9 @@ public class Templates {
 	}
 
 	private String getRepositoryGetAll() {
-		return "\tpublic List<init><resourceName><end> getAll<resourceName>s() {\r\n" + 
+		return "\tpublic List<init><resourceName><end> getAll<resourceName>s(int skip, int first) {\r\n" + 
 				"\t\tList<init><resourceName><end> all<resourceName>s = new ArrayList<init><resourceName><end>();\r\n" + 
-				"\t\tfor (Document doc : <resourceVarName>s.find()) {\r\n" + 
+				"\t\tfor (Document doc : <resourceVarName>s.find().skip(skip).limit(first)) {\r\n" + 
 				"\t\t\tall<resourceName>s.add(<resourceVarName>(doc));\r\n" + 
 				"\t\t}\r\n" + 
 				"\t\treturn all<resourceName>s;\r\n" + 
@@ -401,7 +401,8 @@ public class Templates {
 				template = template.replaceAll(resource.getPredicates().get(i-1).getObject().getReference(), "\" + doc.getString(\"<referenceName" + i + ">\") + \"");
 			}
 		}
-
+		template = template.replaceAll("\\{", "");
+		template = template.replaceAll("\\}", "");
 		return template;
 	}
 }

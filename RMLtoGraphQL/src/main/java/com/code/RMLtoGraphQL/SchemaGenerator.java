@@ -28,7 +28,19 @@ public class SchemaGenerator {
 				for(int j = 1; j < resources.get(i-1).getPredicates().size()+1; j++) {
 					if(resources.get(i-1).getPredicates().get(j-1).getObject().getRelation() == null) {
 						schemaTemplate.add("predicateName" + i+j, resources.get(i-1).getPredicates().get(j-1).getPredicate());
+						if(resources.get(i-1).getPredicates().get(j-1).getObject().getDatatype().equalsIgnoreCase("int")) {
+							schemaTemplate.add("datatype" + i+j, "Int");
+						}
+						else if (resources.get(i-1).getPredicates().get(j-1).getObject().getDatatype().equals("double") 
+								|| resources.get(i-1).getPredicates().get(j-1).getObject().getDatatype().equals("float")) {
+							schemaTemplate.add("datatype" + i+j, "Float");
+						}
+						else if (resources.get(i-1).getPredicates().get(j-1).getObject().getDatatype().equals("boolean")) {
+							schemaTemplate.add("datatype" + i+j, "Boolean");
+						}
+						else {
 						schemaTemplate.add("datatype" + i+j, resources.get(i-1).getPredicates().get(j-1).getObject().getDatatype());
+						}
 					}
 					else {
 						schemaTemplate.add("predicateName" + i+j, resources.get(i-1).getPredicates().get(j-1).getPredicate());

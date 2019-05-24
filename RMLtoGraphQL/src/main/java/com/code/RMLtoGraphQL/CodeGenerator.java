@@ -206,8 +206,13 @@ public class CodeGenerator  {
 			for(int i = 1; i < resource.getPredicates().size()+1; i++) {
 				if(resource.getPredicates().get(i-1).getObject().getRelation() == null) {
 					fileRepositoryTemplate.add("referenceName" + i, resource.getPredicates().get(i-1).getObject().getReference());
-					fileRepositoryTemplate.add("datatypeGetterName" + i, Character.toUpperCase(resource.getPredicates().get(i-1).getObject().getDatatype().charAt(0)) + 
-							resource.getPredicates().get(i-1).getObject().getDatatype().substring(1,resource.getPredicates().get(i-1).getObject().getDatatype().length()));
+					if(resource.getPredicates().get(i-1).getObject().getDatatype().equals("int")) {
+						fileRepositoryTemplate.add("datatypeGetterName" + i, "Integer");
+					}
+					else {
+						fileRepositoryTemplate.add("datatypeGetterName" + i, Character.toUpperCase(resource.getPredicates().get(i-1).getObject().getDatatype().charAt(0)) + 
+								resource.getPredicates().get(i-1).getObject().getDatatype().substring(1,resource.getPredicates().get(i-1).getObject().getDatatype().length()));
+					}
 					fileRepositoryTemplate.add("predicateGetterName" + i, Character.toUpperCase(resource.getPredicates().get(i-1).getPredicate().charAt(0)) + 
 							resource.getPredicates().get(i-1).getPredicate().substring(1,resource.getPredicates().get(i-1).getPredicate().length()));
 				}

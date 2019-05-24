@@ -73,7 +73,7 @@ public class RMLReader {
 								// templateMainString = getParameter(line, template);
 							}
 							else {
-								templateString = getParameter(line, template);
+								templateString = getParameterTemplate(line, template);
 								predicates.get(predicates.size()-1).getObject().setTemplate(templateString);;
 							}
 						}
@@ -137,7 +137,7 @@ public class RMLReader {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		
+
 		seeResources(resources);
 		resources = triplesMapToClass(resources);
 		System.out.println(sourceString);
@@ -149,9 +149,8 @@ public class RMLReader {
 		line = line.trim();
 		line = line.replace("\t", "");
 		int index = line.indexOf(typeParameter);
-		line = line.substring(index);
-		index = line.indexOf(" ") + 1;
-		line = line.substring(index);
+		line = line.substring(index + typeParameter.length());
+		line = line.trim();
 		if(line.charAt(line.length()-1) == ';' || line.charAt(line.length()-1) == ','
 				|| line.charAt(line.length()-1) == ']') {
 			line = line.substring(0, line.length()-1);
@@ -159,7 +158,26 @@ public class RMLReader {
 		if(line.charAt(0) == '"') {
 			line = line.substring(1, line.length()-1);
 		}
-		line = line.substring(line.indexOf(":") + 1);
+		if(line.contains(":")) {
+			line = line.substring(line.indexOf(":") + 1);
+		}
+		// line = line.replace(":", "");
+		return line;
+	}
+
+	private String getParameterTemplate(String line, String typeParameter) {
+		line = line.trim();
+		line = line.replace("\t", "");
+		int index = line.indexOf(typeParameter);
+		line = line.substring(index + typeParameter.length());
+		line = line.trim();
+		if(line.charAt(line.length()-1) == ';' || line.charAt(line.length()-1) == ','
+				|| line.charAt(line.length()-1) == ']') {
+			line = line.substring(0, line.length()-1);
+		}
+		if(line.charAt(0) == '"') {
+			line = line.substring(1, line.length()-1);
+		}
 		// line = line.replace(":", "");
 		return line;
 	}
@@ -168,9 +186,8 @@ public class RMLReader {
 		line = line.trim();
 		line = line.replace("\t", "");
 		int index = line.indexOf(typeParameter);
-		line = line.substring(index);
-		index = line.indexOf(" ") + 1;
-		line = line.substring(index);
+		line = line.substring(index + typeParameter.length());
+		line = line.trim();
 		if(line.charAt(line.length()-1) == ';' || line.charAt(line.length()-1) == ','
 				|| line.charAt(line.length()-1) == ']') {
 			line = line.substring(0, line.length()-1);
@@ -183,23 +200,22 @@ public class RMLReader {
 		line = line.substring(index, index2);
 		return line;
 	}
-	
+
 	private String getParameterParentTriplesMap(String line, String typeParameter) {
 		line = line.trim();
 		line = line.replace("\t", "");
 		int index = line.indexOf(typeParameter);
-		line = line.substring(index);
-		index = line.indexOf(" ") + 1;
-		line = line.substring(index);
+		line = line.substring(index + typeParameter.length());
+		line = line.trim();
 		if(line.charAt(line.length()-1) == ';' || line.charAt(line.length()-1) == ','
 				|| line.charAt(line.length()-1) == ']') {
 			line = line.substring(0, line.length()-1);
 		}
-		
+
 		line = line.substring(1, line.length()-1);
 		return line;
 	}
-	
+
 	private String getTriplesMapName(String line) {
 		line = line.trim();
 		line = line.replace("\t", "");
@@ -208,7 +224,7 @@ public class RMLReader {
 		line = line.substring(index1, index2);
 		return line;
 	}
-	
+
 	private List<Resource> triplesMapToClass(List<Resource> resources) {
 		for(int i = 0; i < resources.size(); i++) {
 			if(resources.get(i).isHaveRelation()) {
@@ -223,7 +239,7 @@ public class RMLReader {
 				}
 			}
 		}
-		
+
 		return resources;
 	}
 
