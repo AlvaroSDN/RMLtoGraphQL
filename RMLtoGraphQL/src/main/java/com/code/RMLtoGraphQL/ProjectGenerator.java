@@ -21,8 +21,8 @@ public class ProjectGenerator {
 		this.routeServer = routeServer;
 		this.rmlFile = rmlFile;
 		this.templates = templates;
-		
-		
+
+
 		schemaGenerator = new SchemaGenerator(this.templates);
 		codeGenerator = new CodeGenerator(this.templates);
 	}
@@ -30,13 +30,15 @@ public class ProjectGenerator {
 	public void generateProject() {
 		System.out.println(routeCreate);
 		System.out.println(routeServer);
-		
-		deleteDirectory(new File(routeCreate));
+
+		if(new File(routeCreate).exists()) {
+			deleteDirectory(new File(routeCreate));
+		}
 		copyDirectory(new File(routeServer), new File(routeCreate));
-		
+
 		String routeSchema = routeCreate + "\\src\\main\\resources";
 		schemaGenerator.generateSchema(routeSchema, rmlFile.getResources());
-		
+
 		String routeCode = routeCreate + "\\src\\main\\java\\com\\servidorGraphQL\\code";
 		codeGenerator.generateCode(routeCode, rmlFile);
 	}
@@ -48,7 +50,7 @@ public class ProjectGenerator {
 			}
 			String[] files = d1.list();
 			for (int i = 0; i < files.length; i++) {
-			  copyDirectory(new File(d1, files[i]), new File(d2, files[i]));                           
+				copyDirectory(new File(d1, files[i]), new File(d2, files[i]));                           
 			}
 		}
 		else {
@@ -75,15 +77,15 @@ public class ProjectGenerator {
 			ioe.printStackTrace();
 		}
 	}
-	
+
 	public static void deleteDirectory(File d1) {
 		File[] files = d1.listFiles();
-		 
-		 for (int i = 0; i < files.length; i++) {
-			 if (files[i].isDirectory()) {
-				  deleteDirectory(files[i]);
-				}
-				files[i].delete();
-		 }
+
+		for (int i = 0; i < files.length; i++) {
+			if (files[i].isDirectory()) {
+				deleteDirectory(files[i]);
+			}
+			files[i].delete();
+		}
 	}
 }
