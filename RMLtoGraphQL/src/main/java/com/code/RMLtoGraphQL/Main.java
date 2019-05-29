@@ -1,10 +1,6 @@
 package com.code.RMLtoGraphQL;
 
 import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 
@@ -16,7 +12,6 @@ public class Main {
 	
 	public static void main(String[] args) {
 		File exampleDirectory = new File(getExampleDirectory()); 
-		// muestra el cuadro de diálogo de archivos, para que el usuario pueda elegir el archivo a abrir
 		boolean ficheroValido = false;
 		File mapping = null;
 		JOptionPane.showMessageDialog(null, "Seleccione su archivo mapping");
@@ -24,12 +19,11 @@ public class Main {
 		selectorArchivos.setCurrentDirectory(exampleDirectory); 
 		selectorArchivos.setFileSelectionMode(JFileChooser.FILES_ONLY);
 
-		// indica cual fue la accion de usuario sobre el jfilechooser
+		
 		while(ficheroValido == false) {
 			selectorArchivos.showOpenDialog(selectorArchivos);
-			mapping = selectorArchivos.getSelectedFile(); // obtiene el archivo seleccionado
+			mapping = selectorArchivos.getSelectedFile(); 
 
-			// muestra error si es inválido
 			if ((mapping == null) || (mapping.getName().equals(""))) {
 				JOptionPane.showMessageDialog(selectorArchivos, "Se ha seleccionado un archivo no valido, o ha pulsado en Cancelar.", "Error", JOptionPane.ERROR_MESSAGE);
 				if(JOptionPane.showConfirmDialog(null, "¿Desea buscar otro archivo?", "RMLtoGraphQL", JOptionPane.YES_NO_OPTION) == 1) {
@@ -53,7 +47,7 @@ public class Main {
 
 		// indica cual fue la accion de usuario sobre el jfilechooser
 		while(directorioValido == false) {
-			int result = selectorArchivos.showOpenDialog(selectorArchivos);
+			selectorArchivos.showOpenDialog(selectorArchivos);
 			routeCreate = selectorArchivos.getSelectedFile(); // obtiene el archivo seleccionado
 
 			// muestra error si es inválido

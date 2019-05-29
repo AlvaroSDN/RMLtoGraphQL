@@ -7,20 +7,21 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-
-import javax.annotation.Resources;
 import javax.swing.JOptionPane;
 
 public class RMLReader {
 	private static final String nameClass = "rr:class ";
+	@SuppressWarnings("unused")
 	private static final String predicateObjectMap = "rr:predicateObjectMap";
 	private static final String predicate = "rr:predicate ";
+	@SuppressWarnings("unused")
 	private static final String objectMap = "rr:objectMap";
 	private static final String reference = "rml:reference ";
 	private static final String datatype = "rr:datatype ";
 	private static final String source = "rml:source ";
 	private static final String iterator = "rml:iterator ";
 	private static final String template = "rr:template ";
+	@SuppressWarnings("unused")
 	private static final String subjectMap = "rr:subjectMap ";
 	private static final String parentTriplesMap = "rr:parentTriplesMap ";
 	private static final String joinConditionChild = "rr:child ";
