@@ -11,6 +11,7 @@ public class Templates {
 	public String getEndpointTemplate(List<Resource> resources) {
 		String result = "package com.servidorGraphQL.code;\r\n\n";
 		String mongo = "\tstatic {\r\n" +
+				"\t\t@SuppressWarnings(\"resource\")\r\n" +
 				"\t\tMongoDatabase mongo = new MongoClient().getDatabase(\"<sourceName>\");\r\n";
 		String attributes = "@WebServlet(urlPatterns = \"/graphql\")\r\n" + 
 				"public class GraphQLEndpoint extends SimpleGraphQLServlet {\r\n" + 
@@ -289,19 +290,12 @@ public class Templates {
 		return "import com.coxautodev.graphql.tools.SchemaParser;\r\n" + 
 				"import com.mongodb.MongoClient;\r\n" + 
 				"import com.mongodb.client.MongoDatabase;\r\n" + 
-				"\r\n" + 
-				"import java.util.List;\r\n" + 
-				"import java.util.Optional;\r\n" + 
+				"import java.util.List;\r\n" +  
 				"import java.util.stream.Collectors;\r\n" + 
-				"\r\n" + 
 				"import javax.servlet.annotation.WebServlet;\r\n" + 
-				"import javax.servlet.http.HttpServletRequest;\r\n" + 
-				"import javax.servlet.http.HttpServletResponse;\r\n" + 
-				"\r\n" + 
 				"import graphql.ExceptionWhileDataFetching;\r\n" + 
 				"import graphql.GraphQLError;\r\n" + 
 				"import graphql.schema.GraphQLSchema;\r\n" + 
-				"import graphql.servlet.GraphQLContext;\r\n" + 
 				"import graphql.servlet.SimpleGraphQLServlet;";
 	}
 
@@ -316,20 +310,12 @@ public class Templates {
 	}
 
 	private String getRepositoryImports() {
-		return "import com.mongodb.client.FindIterable;\r\n" + 
-				"import com.mongodb.client.MongoCollection;\r\n" + 
-				"\r\n" + 
+		return  "import com.mongodb.client.MongoCollection;\r\n" + 
 				"import org.bson.Document;\r\n" + 
-				"import org.bson.conversions.Bson;\r\n" + 
 				"import org.bson.types.ObjectId;\r\n" + 
-				"\r\n" + 
 				"import java.util.ArrayList;\r\n" + 
 				"import java.util.List;\r\n" + 
-				"import java.util.Optional;\r\n" + 
-				"\r\n" + 
-				"import static com.mongodb.client.model.Filters.and;\r\n" + 
-				"import static com.mongodb.client.model.Filters.eq;\r\n" + 
-				"import static com.mongodb.client.model.Filters.regex;";
+				"import static com.mongodb.client.model.Filters.eq;\r\n";
 	}
 
 	private String getRepositoryFind() {
